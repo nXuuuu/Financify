@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Source Serif 4", Georgia, serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --color-ink: #0e1116;
+  --color-surface: #161b22;
+  --color-surface-2: #1c2230;
+  --color-border: #262c36;
+  --color-text: #e8eaed;
+  --color-muted: #8b93a1;
+  --color-brass: #c9a227;
+  --color-brass-dim: #8a701f;
+  --color-positive: #4ade80;
+  --color-negative: #f87171;
+}
+
+body {
+  background: var(--color-ink);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+.font-tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.ledger-rule {
+  border-bottom: 1px solid var(--color-border);
+  position: relative;
+}
+.ledger-rule::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 1px;
+  background: var(--color-border);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
