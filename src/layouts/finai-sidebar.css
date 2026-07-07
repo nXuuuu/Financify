@@ -1,0 +1,424 @@
+:root {
+  --bg: #eef1ec;
+  --sidebar-bg: #ffffff;
+  --card-bg: #ffffff;
+  --ink: #12251c;
+  --muted: #7c8a82;
+  --muted-2: #9aa79f;
+  --border: #e4e9e3;
+  --green: #22c55e;
+  --green-dark: #16a34a;
+}
+
+* { 
+  box-sizing: border-box; 
+}
+
+.finai-app { 
+  display: flex; 
+  flex-direction: column; /* CHANGE THIS: Stack mobile topbar on top of the main layout area */
+  position: relative;
+  min-height: 100vh; 
+  max-width: 100%; 
+  margin: 0; 
+  background: var(--bg); 
+  color: var(--ink); 
+  font-family: -apple-system, "Inter", "Segoe UI", Helvetica, Arial, sans-serif; 
+}
+
+/* ---------- Sidebar Base Styles ---------- */
+.sidebar { 
+  width: 230px; 
+  flex-shrink: 0; 
+  background: var(--sidebar-bg); 
+  border-right: 1px solid var(--border); 
+  padding: 22px 16px; 
+  display: flex; 
+  flex-direction: column; 
+  height: 100vh;
+  position: sticky; 
+  top: 0; 
+  left: 0;
+  z-index: 50;
+  overflow-y: auto; /* Allow menu items to scroll if screen is short */
+}
+
+.brand { 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  padding: 0 6px 22px 6px; 
+}
+
+.brand-name { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  font-weight: 700; 
+  font-size: 15px; 
+  letter-spacing: 0.5px; 
+  color: var(--ink); /* Force visibility */
+}
+
+.brand-name svg { 
+  color: var(--green-dark); 
+}
+
+/* ---------- Navigation Menu Items ---------- */
+.nav-group { 
+  margin-bottom: 20px; 
+  display: block;
+  width: 100%;
+  flex-shrink: 0; /* CRITICAL: Stops the browser from flattening your menus */
+}
+
+/* Forces the profile/logout group to sit at the absolute bottom */
+.nav-group.nav-group-special { 
+  margin-top: auto; 
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 0;
+}
+
+.nav-label { 
+  font-size: 11px; 
+  font-weight: 700; 
+  letter-spacing: 0.08em; 
+  color: var(--muted-2); 
+  padding: 0 10px 8px 10px; 
+  text-transform: uppercase; 
+}
+
+.nav-item { 
+  display: flex; 
+  align-items: center; 
+  gap: 10px; 
+  padding: 10px; 
+  border-radius: 10px; 
+  color: #4b5a51; 
+  font-size: 14px; 
+  font-weight: 500; 
+  cursor: pointer; 
+  border: none; 
+  background: transparent; 
+  width: 100%; 
+  text-align: left; 
+  text-decoration: none; 
+  transition: background .15s ease, color .15s ease; 
+}
+
+.nav-item svg { 
+  flex-shrink: 0; 
+  opacity: 0.8; 
+}
+
+.nav-item:hover { 
+  background: #f2f5f0; 
+}
+
+.nav-item.active { 
+  background: var(--green-dark); 
+  color: #fff; 
+  box-shadow: 0 6px 14px rgba(22,163,74,0.28); 
+}
+
+.nav-item.active svg { 
+  opacity: 1; 
+}
+
+/* ---------- Main Layout Area ---------- */
+.finai-main { 
+  flex: 1; 
+  padding: 24px 28px 40px 28px; 
+  min-width: 0; 
+  width: 100%;
+}
+
+/* ---------- Mobile top bar (hidden on desktop) ---------- */
+/* .mobile-topbar {
+  display: none;
+  align-items: center; 
+  justify-content: flex-start;
+  position: sticky; 
+  top: 0; 
+  z-index: 40;
+  background: var(--sidebar-bg); 
+  border-bottom: 1px solid var(--border);
+  padding: 14px 16px;
+} */
+.mobile-topbar {
+  display: none;
+  align-items: center; 
+  justify-content: flex-start; 
+  gap: 10px;
+  position: sticky; 
+  top: 0; 
+  z-index: 100;
+  background: var(--sidebar-bg); 
+  border-bottom: 1px solid var(--border);
+  padding: 14px 16px;
+  width: 100%;
+  height: 60px; 
+  box-sizing: border-box;
+}
+
+.menu-toggle {
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  width: 36px; 
+  height: 36px; 
+  border-radius: 8px;
+  border: 1px solid var(--border); 
+  background: transparent; 
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.menu-toggle:hover { 
+  background: #f2f5f0; 
+}
+
+/* Backdrop Overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed; 
+  inset: 0; 
+  z-index: 45;
+  background: rgba(18, 37, 28, 0.45);
+  opacity: 0; 
+  pointer-events: none;
+  transition: opacity .2s ease;
+}
+
+.sidebar-overlay.visible { 
+  opacity: 1; 
+  pointer-events: auto; 
+}
+
+/* ---------- Responsive Breakpoints (Mobile) ---------- */
+/* ---------- Mobile top bar (Crucial fixes applied) ---------- */
+
+
+/* Force mobile brand text and icons to be dark/ink colored */
+.mobile-topbar .brand-name { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  font-weight: 700; 
+  font-size: 15px; 
+  letter-spacing: 0.5px; 
+  color: var(--ink) !important; /* Force visibility */
+}
+
+.mobile-topbar .brand-name svg { 
+  color: var(--green-dark) !important; 
+}
+
+.menu-toggle {
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  width: 38px; 
+  height: 38px; 
+  border-radius: 8px;
+  border: 1px solid var(--border); 
+  background: transparent; 
+  color: var(--ink) !important; /* Force burger lines to be visible */
+  cursor: pointer;
+}
+
+.menu-toggle:hover { 
+  background: #f2f5f0; 
+}
+
+/* ---------- Responsive Breakpoints (Mobile layout re-force) ---------- */
+/* ==========================================================================
+   RESPONSIVE BREAKPOINTS (MOBILE ONLY Rules)
+   ========================================================================== */
+@media (max-width: 900px) {
+  .finai-app { 
+    display: flex !important;
+    flex-direction: column !important; 
+  }
+
+  .mobile-topbar { 
+    display: flex !important; 
+  }
+
+  .sidebar-overlay { 
+    display: block; 
+  }
+
+  .sidebar {
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    z-index: 200; 
+    width: min(80vw, 280px);
+    height: 100vh;
+    max-height: 100vh;
+    transform: translateX(-100%);
+    transition: transform .25s ease;
+    box-shadow: 8px 0 24px rgba(0,0,0,0.12);
+    display: flex !important;
+    flex-direction: column !important;
+    overflow-y: auto; 
+  }
+  
+  .sidebar.open { 
+    transform: translateX(0); 
+  }
+
+  .sidebar .brand { 
+    display: none; 
+  }
+
+  .finai-main { 
+    width: 100%; 
+    padding: 18px 16px 28px 16px; 
+  }
+}
+
+/* ==========================================================================
+   DESKTOP VIEWPORT OVERRIDES (901px and Up)
+   ========================================================================== */
+@media (min-width: 901px) {
+  .finai-app { 
+    display: flex !important;
+    flex-direction: row !important; /* Forces layout left-to-right */
+    align-items: stretch !important;
+    overflow: hidden !important;
+    height: 100vh !important;
+  }
+
+  .mobile-topbar { 
+    display: none !important; 
+  }
+
+  .sidebar-overlay {
+    display: none !important;
+  }
+
+  .sidebar {
+    position: relative !important; /* Removes 'fixed' behavior from mobile */
+    transform: translateX(0) !important; /* Forces it to show up permanently */
+    width: 230px !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    z-index: 10 !important;
+    box-shadow: none !important;
+  }
+
+  .sidebar .brand { 
+    display: flex !important; /* Brings back the logo header on desktop */
+  }
+
+  .finai-main { 
+    flex: 1 !important; /* Grabs all remaining width next to sidebar */
+    width: auto !important;
+    height: 100vh !important;
+    overflow-y: auto !important; /* Scrollable app content view */
+    padding: 24px 28px 40px 28px !important;
+    display: block !important;
+  }
+}
+
+/* Minor mobile screen optimization adjustments */
+@media (max-width: 480px) {
+  .sidebar { width: min(85vw, 260px); }
+  .finai-main { padding: 16px 12px 24px 12px; }
+  .nav-item { padding: 12px 10px; font-size: 14.5px; }
+}
+
+/* ---------- Profile & Special Items (Bottom) ---------- */
+.nav-item-special {
+  max-width: fit-content;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0; 
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--green-dark); /* Changed from blue to match your app theme */
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.profile-info {
+  min-width: 0;
+}
+
+.profile-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; 
+  display: block;
+}
+
+/* Logout Button */
+.logout-btn {
+  position: relative; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.2s, background-color 0.2s;
+  width: fit-content;
+}
+
+.logout-btn:hover {
+  color: #ef4444; 
+  background-color: rgba(239, 68, 68, 0.1); 
+}
+
+/* Tooltip Layout */
+.logout-btn .tooltip-text {
+  position: absolute;
+  bottom: 125%; 
+  left: 50%;
+  transform: translateX(-50%) scale(0); 
+  transform-origin: bottom center;
+  background-color: #171717;
+  color: #ffffff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none; 
+  opacity: 0;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  z-index: 60;
+}
+
+.logout-btn:hover .tooltip-text {
+  opacity: 1;
+  transform: translateX(-50%) scale(1); 
+}
