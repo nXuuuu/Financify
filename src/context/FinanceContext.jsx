@@ -128,6 +128,17 @@ const refresh = useCallback(async () => {
     return { data, error }
   }
 
+  const updateGoal = async (id, patch) => {
+    const { data, error } = await supabase
+      .from('goals')
+      .update(patch)
+      .eq('id', id)
+      .select()
+      .single()
+    if (!error) setGoals((prev) => prev.map((g) => (g.id === id ? data : g)))
+    return { data, error }
+  }
+
   const contributeToGoal = async (goalId, amount) => {
     const goal = goals.find((g) => g.id === goalId)
     if (!goal) return { error: 'Goal not found' }
@@ -190,6 +201,7 @@ const refresh = useCallback(async () => {
     deleteTransaction,
     upsertBudget,
     addGoal,
+    updateGoal,
     contributeToGoal,
     contributeToGoalFromWallet,
     deleteGoal,

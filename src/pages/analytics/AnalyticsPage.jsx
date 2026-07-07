@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef } from 'react'
+import { useMemo, useState, useRef, useEffect } from 'react'
 import { ArrowUp, ArrowDown, TrendingUp, TrendingDown, Wallet2, PiggyBank, Target, Info } from 'lucide-react'
 import { useFinance } from '@/context/FinanceContext'
 import './finai/analytics.css'
@@ -237,6 +237,36 @@ function CashFlowChart({ buckets, mode }) {
   )
 }
 
+function CategoryDonut({ data, selected, onSlice }) {
+  const r = 80, cx = 100, cy = 100, sw = 30
+  const total = data.reduce((s, d) => s + d.value, 0) || 1
+  let acc = 0
+  return (
+    <svg viewBox="0 0 200 200" width="200" height="200">
+      {data.map((d) => {
+        const start = (acc / total) * 2 * Math.PI - Math.PI / 2
+        acc += d.value
+        const end = (acc / total) * 2 * Math.PI - Math.PI / 2
+        const large = end - start > Math.PI ? 1 : 0
+        const x1 = cx + r * Math.cos(start), y1 = cy + r * Math.sin(start)
+        const x2 = cx + r * Math.cos(end), y2 = cy + r * Math.sin(end)
+        const active = !selected || selected === d.name
+        return (
+          <path
+            key={d.name}
+            d={`M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}`}
+            fill="none" stroke={d.color} strokeWidth={active ? sw : sw - 8}
+            strokeLinecap="round" opacity={active ? 1 : 0.35}
+            className={selected === d.name ? 'selected' : ''}
+            style={{ cursor: 'pointer' }}
+            onClick={() => onSlice(d.name)}
+          />
+        )
+      })}
+    </svg>
+  )
+}
+
 function EmptyState({ text }) {
   return (
     <div style={{ padding: '40px 10px', textAlign: 'center', color: 'var(--muted)' }}>
@@ -253,6 +283,7 @@ export default function AnalyticsPage() {
   const [granularity, setGranularity] = useState('month')
   const [ieView, setIeView] = useState('bar')
   const [breakdownView, setBreakdownView] = useState('donut')
+  const [selectedBreakdownCat, setSelectedBreakdownCat] = useState(null)
 
   const scopedTx = useMemo(() => (walletFilter === 'all' ? transactions : transactions.filter((t) => t.account_id === walletFilter)), [transactions, walletFilter])
   const scopedAccounts = useMemo(() => (walletFilter === 'all' ? accounts : accounts.filter((a) => a.id === walletFilter)), [accounts, walletFilter])
@@ -333,10 +364,16 @@ export default function AnalyticsPage() {
   const biggestIncrease = categoryTrendsRanked.find((c) => c.trendPct > 0)
   const biggestDecrease = [...categoryTrendsRanked].reverse().find((c) => c.trendPct < 0)
 
+  // keep the drilled-into category valid whenever the underlying data changes
+  useEffect(() => {
+    if (selectedBreakdownCat && !categoryStats.find((c) => c.name === selectedBreakdownCat)) {
+      setSelectedBreakdownCat(null)
+    }
+  }, [categoryStats, selectedBreakdownCat])
+
   // ---- wallet performance ----
   const walletPerf = useMemo(() => {
     return accounts.map((a) => {
-      const txs = periodTx.filter((t) => t.account_id === a.id) // note: periodTx already scoped by walletFilter, so recompute from full range for accuracy
       const allTxs = transactions.filter((t) => t.account_id === a.id && inRange(t.date, start, end))
       const income = sumBy(allTxs, 'income'), expense = sumBy(allTxs, 'expense')
       return {
@@ -415,12 +452,14 @@ export default function AnalyticsPage() {
     return list
   }, [weekendVsWeekday, biggestIncrease, biggestDecrease, avgDailySpend])
 
+  const activeWalletName = walletFilter !== 'all' ? accounts.find((a) => a.id === walletFilter)?.name : null
+
   return (
     <div className="finai-page">
       <div className="topbar"><div className="greeting"><div><h1>Analytics</h1><p>Your financial trends, in depth</p></div></div></div>
 
       {/* Global filter bar */}
-      <div className="card" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 18 }}>
+      <div className="card" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: activeWalletName ? 10 : 18 }}>
         <select className="filter-select" value={walletFilter} onChange={(e) => setWalletFilter(e.target.value)}>
           <option value="all">All Wallets</option>
           {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
@@ -432,6 +471,13 @@ export default function AnalyticsPage() {
           {GRANULARITY_OPTIONS.map((g) => <button key={g.id} className={granularity === g.id ? 'active' : ''} onClick={() => setGranularity(g.id)}>{g.label}</button>)}
         </div>
       </div>
+
+      {activeWalletName && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18, fontSize: 12.5 }}>
+          <span className="filter-select" style={{ cursor: 'default' }}>Filtered: {activeWalletName}</span>
+          <button className="link-all" onClick={() => setWalletFilter('all')}>Clear</button>
+        </div>
+      )}
 
       {!hasAnyTx ? (
         <div className="card"><EmptyState text="Add transactions to see analytics for this wallet." /></div>
@@ -489,17 +535,15 @@ export default function AnalyticsPage() {
                     <button className={breakdownView === 'bars' ? 'active' : ''} onClick={() => setBreakdownView('bars')}>Bars</button>
                   </div>
                 </div>
-                {!hasPeriodTx || categoryStats.length === 0 ? <EmptyState text="No expenses recorded this period." /> : (
+                {!hasPeriodTx || categoryStats.length === 0 ? <EmptyState text="No expenses recorded this period." /> : breakdownView === 'bars' ? (
                   <div className="legend-list" style={{ marginTop: 14 }}>
                     {categoryStats.map((c) => (
                       <div key={c.name} className="legend-row" style={{ cursor: 'default' }}>
                         <span className="legend-dot" style={{ background: c.color }} />
                         <span className="legend-name">{c.name}</span>
-                        {breakdownView === 'bars' && (
-                          <div style={{ flex: 1, height: 6, background: '#eef1ec', borderRadius: 20, margin: '0 8px', overflow: 'hidden' }}>
-                            <div style={{ width: `${c.pct}%`, height: '100%', background: c.color, borderRadius: 20 }} />
-                          </div>
-                        )}
+                        <div style={{ flex: 1, height: 6, background: '#eef1ec', borderRadius: 20, margin: '0 8px', overflow: 'hidden' }}>
+                          <div style={{ width: `${c.pct}%`, height: '100%', background: c.color, borderRadius: 20 }} />
+                        </div>
                         <span className="legend-amount">{fmt0(c.value)}</span>
                         <span className="legend-pct">{c.pct}%</span>
                         <span style={{ fontSize: 11, fontWeight: 700, marginLeft: 6, color: c.trendPct > 0 ? '#dc2626' : c.trendPct < 0 ? '#15803d' : 'var(--muted)', minWidth: 40, textAlign: 'right' }}>
@@ -507,6 +551,68 @@ export default function AnalyticsPage() {
                         </span>
                       </div>
                     ))}
+                  </div>
+                ) : (
+                  <div className="donut-wrap">
+                    <div className="donut-holder">
+                      <CategoryDonut
+                        data={categoryStats}
+                        selected={selectedBreakdownCat}
+                        onSlice={(n) => setSelectedBreakdownCat((c) => (c === n ? null : n))}
+                      />
+                      <div className="donut-center">
+                        <span className="k1">{selectedBreakdownCat ? 'Selected' : 'Top Category'}</span>
+                        <span className="k2">{selectedBreakdownCat || categoryStats[0]?.name}</span>
+                      </div>
+                    </div>
+
+                    {!selectedBreakdownCat ? (
+                      <div className="legend-panel">
+                        <div className="spending-total">Total spent</div>
+                        <div className="spending-amount">{fmt(monthExpense)}</div>
+                        <div className="legend-list">
+                          {categoryStats.map((c) => (
+                            <button key={c.name} className="legend-row" onClick={() => setSelectedBreakdownCat(c.name)}>
+                              <span className="legend-dot" style={{ background: c.color }} />
+                              <span className="legend-name">{c.name}</span>
+                              <div className="legend-info">
+                                <span className="legend-amount">{fmt0(c.value)}</span>
+                                <span className="legend-pct">{c.pct}%</span>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="legend-panel fade-enter">
+                        <div className="detail-header">
+                          <button className="back-btn" onClick={() => setSelectedBreakdownCat(null)}>←</button>
+                          <div className="detail-heading">
+                            <div className="detail-title">
+                              <span className="detail-dot" style={{ background: categoryStats.find((c) => c.name === selectedBreakdownCat)?.color }} />
+                              {selectedBreakdownCat}
+                            </div>
+                            <div className="detail-sub">
+                              {fmt(categoryStats.find((c) => c.name === selectedBreakdownCat)?.value || 0)} this period
+                            </div>
+                          </div>
+                        </div>
+                        <div className="txn-detail-list">
+                          {periodTx.filter((t) => t.type === 'expense' && t.category === selectedBreakdownCat)
+                            .sort((a, b) => new Date(b.date) - new Date(a.date))
+                            .map((t) => (
+                              <div className="txn-row" key={t.id}>
+                                <div className="txn-icon"><Wallet2 size={14} /></div>
+                                <div className="txn-info">
+                                  <div className="txn-name">{t.merchant}</div>
+                                  <div className="txn-date">{new Date(t.date).toLocaleDateString()}</div>
+                                </div>
+                                <div className="txn-amt">-{fmt(t.amount)}</div>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -531,10 +637,21 @@ export default function AnalyticsPage() {
 
             <div className="dashboard-grid">
               <div className="card chart-card">
-                <div className="card-head"><div><h2>Wallet Performance</h2><p className="card-sub">Which wallets are doing the most work</p></div></div>
+                <div className="card-head"><div><h2>Wallet Performance</h2><p className="card-sub">Which wallets are doing the most work — click a wallet to filter the page</p></div></div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 14 }}>
                   {walletPerf.map((w) => (
-                    <div key={w.id} className="setting-row" style={{ cursor: 'pointer', padding: '10px 0' }} onClick={() => setWalletFilter(w.id)}>
+                    <div
+                      key={w.id}
+                      className="setting-row"
+                      style={{
+                        cursor: 'pointer',
+                        padding: '10px 10px',
+                        margin: '0 -10px',
+                        borderRadius: 10,
+                        background: w.id === walletFilter ? 'var(--green-pale)' : undefined,
+                      }}
+                      onClick={() => setWalletFilter((f) => (f === w.id ? 'all' : w.id))}
+                    >
                       <div className="setting-info">
                         <div className="s-title">{w.name}</div>
                         <div className="s-sub">{fmt0(w.income)} in · {fmt0(w.expense)} out · {w.count} tx</div>
