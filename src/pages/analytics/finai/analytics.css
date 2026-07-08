@@ -1,5 +1,4 @@
-
-  :root{
+:root{
     --bg: #eef1ec;
     --sidebar-bg: #ffffff;
     --card-bg: #ffffff;
@@ -95,6 +94,7 @@
 
   .topbar{
     display:flex; align-items:center; justify-content:space-between; margin-bottom:22px;
+    flex-wrap:wrap; row-gap:12px;
   }
   .greeting{ display:flex; align-items:center; gap:12px; }
   .avatar{
@@ -282,7 +282,7 @@
   .rt-amt.pos{ color:#16a34a; }
 
   /* ---------------- Analytics page ---------------- */
-  .analytics-stack{ display:flex; flex-direction:column; gap:18px; }
+  .analytics-stack{ display:flex; flex-direction:column; gap:18px; margin-top:18px; }
 
   .chart-card{ display:flex; flex-direction:column; }
   .chart-card .card-head{
@@ -343,6 +343,17 @@
     .stat-row{ grid-template-columns: 1fr 1fr; }
     .donut-wrap{ grid-template-columns:1fr; justify-items:center; }
     .chart-head-controls{ width:100%; justify-content:space-between; }
+    .topbar-actions{ flex-wrap:wrap; row-gap:8px; }
+  }
+
+  @media (max-width:520px){
+    .stat-row{ grid-template-columns:1fr; }
+    .card{ padding:16px; }
+    .chart-card .card-head{ gap:10px; }
+    .topbar-actions .btn-label{ display:none; }
+    .topbar-actions .btn-primary{ padding:10px 12px; }
+    .segmented{ width:100%; }
+    .segmented button{ flex:1; text-align:center; }
   }
   
   .stat-row-3{ display:grid; grid-template-columns:1.5fr 1fr 1fr; gap:16px; }
@@ -368,19 +379,49 @@
   .chart-body svg{ animation: chartFadeIn .3s ease both; }
   @keyframes chartFadeIn{ from{ opacity:0; } to{ opacity:1; } }
 
-  /* --- Added for production Analytics rebuild --- */
-.filter-select{ font-size:12px; color:#4b5a51; background:#f2f5f0; border:1px solid var(--border); padding:7px 10px; border-radius:20px; cursor:pointer; }
-.trend-chip{ display:inline-flex; align-items:center; gap:4px; font-size:11.5px; font-weight:600; padding:5px 9px; border-radius:20px; margin-top:10px; width:fit-content; }
-.trend-up{ background: rgba(34,197,94,0.18); color:#7fe3a5; }
-.trend-up.on-light{ background: var(--green-pale); color:#15803d; }
-.trend-down{ background: rgba(239,68,68,0.18); color:#f9a8a8; }
-.trend-down.on-light{ background: var(--red-pale); color:#dc2626; }
-.trend-note{ font-size:11px; color:#8fa79a; margin-left:6px; font-weight:500; }
-.trend-note.on-light{ color:var(--muted); }
-.summary-card{ display:flex; flex-direction:column; gap:8px; }
-.summary-card-row{ display:flex; align-items:flex-end; justify-content:space-between; gap:8px; }
-.setting-row{ display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); gap:12px; }
-.setting-row:last-child{ border-bottom:none; }
-.setting-info .s-title{ font-size:13px; font-weight:600; }
-.setting-info .s-sub{ font-size:11.5px; color:var(--muted); margin-top:2px; }
-.stat-amount, .trend-chip, .trend-chip svg{ transition: color .25s ease, background-color .25s ease; }
+  /* ---------------- Functional additions: toolbar, states, category legend ---------------- */
+  .topbar-actions .btn-primary{
+    display:inline-flex; align-items:center; gap:7px; background:var(--green-dark); color:#fff; border:none;
+    font-weight:700; font-size:13px; padding:10px 16px; border-radius:10px; cursor:pointer;
+  }
+  .topbar-actions .btn-primary:hover{ background:#12933f; }
+  .topbar-actions .btn-primary:disabled{ opacity:0.5; cursor:not-allowed; }
+
+  @keyframes spin{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
+
+  .skeleton{ background:linear-gradient(90deg,#eef1ec 25%,#e4e9e3 37%,#eef1ec 63%); background-size:400% 100%; animation:sk 1.4s infinite; }
+  @keyframes sk{ 0%{background-position:100% 0} 100%{background-position:0 0} }
+
+  .error-banner{ display:flex; align-items:center; gap:8px; background:#fde3e2; color:#b91c1c; padding:10px 14px; border-radius:10px; font-size:12.5px; margin-bottom:14px; }
+
+  .legend-list .legend-row{ cursor:default; }
+  .legend-list .legend-row:hover{ background:transparent; }
+
+  /* ---------------- Consistency / overflow safety (matches dashboard, goals, wallet pages) ---------------- */
+  .greeting{ min-width:0; }
+  .greeting h1, .greeting p{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%; }
+  .legend-row{ min-width:0; }
+  .legend-name{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+  .stat-amount, .card.balance-card .amount{ overflow-wrap:anywhere; }
+  .card-head{ min-width:0; }
+  .card-head > div:first-child{ min-width:0; }
+  .card-head h2{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+  /* ---------------- Financial Health insights ---------------- */
+  .insights-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+  .insight-card{
+    display:flex; align-items:flex-start; gap:12px;
+    padding:14px; border-radius:14px; background:#f6f8f4; border:1px solid var(--border);
+  }
+  .insight-icon{
+    width:32px; height:32px; border-radius:9px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .insight-icon.good{ background:#dcfce7; color:#16a34a; }
+  .insight-icon.warn{ background:#fde3e2; color:#ef4444; }
+  .insight-icon.neutral{ background:#e4e9e3; color:#37473d; }
+  .insight-text{ font-size:12.5px; line-height:1.5; color:#37473d; font-weight:500; margin:2px 0 0 0; }
+
+  @media (max-width:768px){
+    .insights-grid{ grid-template-columns:1fr; }
+  }

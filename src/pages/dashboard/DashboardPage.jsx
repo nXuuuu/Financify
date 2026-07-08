@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useRef } from 'react'
-import { Search, Bell, ArrowUp, ArrowDown, TrendingUp, TrendingDown, Send, PlusCircle, ArrowDownToLine, CalendarClock, Coffee, AlertTriangle, X, PiggyBank, Target, Wallet2 } from 'lucide-react'
+import { Search, Bell, ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, Send, PlusCircle, ArrowDownToLine, CalendarClock, Coffee, AlertTriangle, X, PiggyBank, Target, Wallet2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useFinance } from '@/context/FinanceContext'
 import { useAuth } from '@/context/AuthContext'
@@ -558,7 +558,7 @@ export default function DashboardPage() {
                 </span>
               </div>
               <div className="card stat-card" style={{ cursor: 'pointer' }} onClick={() => setModal('income')}>
-                <div className="stat-top"><span className="stat-icon income"><ArrowUp size={14} /></span><span className="stat-label">Monthly Income</span></div>
+                <div className="stat-top"><span className="stat-icon income"><ArrowUpRight size={14} /></span><span className="stat-label">Monthly Income</span></div>
                 <div className="stat-amount">{fmt(monthIncome)}</div>
                 <span className={`trend-chip on-light ${incomePct >= 0 ? 'trend-up' : 'trend-down'}`}>
                   {incomePct >= 0 ? <TrendingUp size={15} style={{ verticalAlign: 'middle', marginRight: 6 }} /> : <TrendingDown size={12} style={{ verticalAlign: 'middle', marginRight: 6 }} />}
@@ -566,7 +566,7 @@ export default function DashboardPage() {
                 </span>
               </div>
               <div className="card stat-card" style={{ cursor: 'pointer' }} onClick={() => setModal('expense')}>
-                <div className="stat-top"><span className="stat-icon expense"><ArrowDown size={14} /></span><span className="stat-label">Monthly Expenses</span></div>
+                <div className="stat-top"><span className="stat-icon expense"><ArrowDownRight size={14} /></span><span className="stat-label">Monthly Expenses</span></div>
                 <div className="stat-amount">{fmt(monthExpense)}</div>
                 <span className={`trend-chip on-light ${expensePct <= 0 ? 'trend-up' : 'trend-down'}`}>
                   {expensePct >= 0 ? <TrendingUp size={15} style={{ verticalAlign: 'middle', marginRight: 6 }} /> : <TrendingDown size={12} style={{ verticalAlign: 'middle', marginRight: 6 }} />}
@@ -669,8 +669,8 @@ export default function DashboardPage() {
             <div className="card">
               <div className="section-title"><h2>Quick Actions</h2></div>
               <div className="quick-grid">
-                <button className="quick-item" onClick={() => setTxKind('income')}><span className="qi-icon"><ArrowUp size={16} /></span>Add Income</button>
-                <button className="quick-item" onClick={() => setTxKind('expense')}><span className="qi-icon"><ArrowDown size={16} /></span>Add Expense</button>
+                <button className="quick-item" onClick={() => setTxKind('income')}><span className="qi-icon"><ArrowUpRight size={16} /></span>Add Income</button>
+                <button className="quick-item" onClick={() => setTxKind('expense')}><span className="qi-icon"><ArrowDownRight size={16} /></span>Add Expense</button>
                 <button className="quick-item" onClick={() => setTxKind('savings')}><span className="qi-icon"><PiggyBank size={16} /></span>Add Savings</button>
                 <button className="quick-item" onClick={() => setGoalModalOpen(true)}><span className="qi-icon"><Target size={16} /></span>Add to Goal</button>
               </div>
