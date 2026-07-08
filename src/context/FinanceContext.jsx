@@ -106,27 +106,37 @@ export function FinanceProvider({ children }) {
     return { error }
   }
 
-  const upsertBudget = async (category, limit_amount) => {
-    const existing = budgets.find((b) => b.category === category)
-    if (existing) {
-      const { data, error } = await supabase
-        .from('budgets')
-        .update({ limit_amount })
-        .eq('id', existing.id)
-        .select()
-        .single()
-      if (!error) setBudgets((prev) => prev.map((b) => (b.id === existing.id ? data : b)))
-      return { data, error }
-    }
+const addBudget = async (input) => {
     const { data, error } = await supabase
       .from('budgets')
-      .insert({ category, limit_amount, user_id: user.id })
+      .insert({ ...input, user_id: user.id })
       .select()
       .single()
     if (!error) setBudgets((prev) => [...prev, data])
     return { data, error }
   }
 
+  const updateBudget = async (id, patch) => {
+    const { data, error } = await supabase
+      .from('budgets')
+      .update(patch)
+      .eq('id', id)
+      .select()
+      .single()
+    if (!error) setBudgets((prev) => prev.map((b) => (b.id === id ? data : b)))
+    return { data, error }
+  }
+
+  const deleteBudget = async (id) => {
+    const { error } = await supabase.from('budgets').delete().eq('id', id)
+    if (!error) setBudgets((prev) => prev.filter((b) => b.id !== id))
+    return { error }
+  }
+
+  const duplicateBudget = async (budget) => {
+    const { id, created_at, ...rest } = budget
+    return addBudget({ ...rest, status: 'active' })
+  }
   const addGoal = async (input) => {
     const { data, error } = await supabase
       .from('goals')
@@ -281,7 +291,10 @@ export function FinanceProvider({ children }) {
     deleteAccount,
     addTransaction,
     deleteTransaction,
-    upsertBudget,
+    addBudget,
+    updateBudget,
+    deleteBudget,
+    duplicateBudget,
     addGoal,
     updateGoal,
     archiveGoal,

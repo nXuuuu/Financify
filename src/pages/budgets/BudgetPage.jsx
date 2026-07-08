@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import {
   Plus, X, MoreVertical, TrendingUp, TrendingDown, AlertTriangle,
-  UtensilsCrossed, Car, ShoppingBag, Receipt, Film, Wallet2, Tag,
+  UtensilsCrossed, Car, ShoppingBag, Receipt, Film, Wallet2, Tag, HouseHeart, ShoppingCart
 } from 'lucide-react'
 import { useFinance } from '@/context/FinanceContext'
 import './finai/budget.css'
@@ -10,8 +10,8 @@ const fmt = (n) => '$' + Number(n || 0).toLocaleString(undefined, { minimumFract
 const CAT_COLORS = ['#14532d', '#6b7280', '#4ade80', '#052e16', '#a7d9b6', '#6366f1', '#f59e0b', '#dc2626']
 const CAT_ICONS = {
   'Dining Out': UtensilsCrossed, Food: UtensilsCrossed, Groceries: ShoppingBag,
-  Transport: Car, Shopping: ShoppingBag, Utilities: Receipt, Bills: Receipt,
-  Entertainment: Film, Housing: Receipt,
+  Transport: Car, Shopping: ShoppingCart, Utilities: Receipt, Bills: Receipt,
+  Entertainment: Film, Housing: HouseHeart,
 }
 const catIcon = (cat) => CAT_ICONS[cat] || Tag
 const catColor = (cat, list) => CAT_COLORS[list.indexOf(cat) % CAT_COLORS.length]
@@ -32,7 +32,7 @@ function statusOf(spent, limit) {
   if (pct >= 90) return 'nearly_full'
   return 'on_track'
 }
-const STATUS_LABEL = { on_track: 'On Track', nearly_full: 'Nearly Full', exceeded: 'Exceeded', no_spend: 'No Spending' }
+const STATUS_LABEL = { on_track: 'On Track', nearly_full: 'Nearly Full', exceeded: 'Exceeded', no_spend: 'No Spending', paused: 'Paused' }
 const barColor = (pct) => (pct > 100 ? 'var(--red)' : pct >= 90 ? '#f97316' : pct >= 75 ? '#f59e0b' : 'var(--green-dark)')
 
 const PERIOD_TABS = [
@@ -133,7 +133,7 @@ function BudgetForm({ initial, categories, accounts, onCancel, onSave }) {
 }
 
 export default function BudgetPage() {
-  const { budgets, transactions, accounts, categories, addBudget, updateBudget, deleteBudget, duplicateBudget } = useFinance()
+  const { budgets, transactions, accounts, categories, addBudget, updateBudget, deleteBudget } = useFinance()
 
   const [periodTab, setPeriodTab] = useState('current')
   const [customRange, setCustomRange] = useState({ start: '', end: '' })
@@ -168,7 +168,8 @@ export default function BudgetPage() {
           .filter((t) => inRange(t.date, range.start, range.end))
           .reduce((s, t) => s + Number(t.amount), 0)
         const pct = b.limit_amount > 0 ? Math.round((spent / b.limit_amount) * 100) : 0
-        return { ...b, spent, pct, remaining: b.limit_amount - spent, status: statusOf(spent, b.limit_amount) }
+        const progressStatus = statusOf(spent, b.limit_amount)
+        return { ...b, spent, pct, remaining: b.limit_amount - spent, budgetStatus: b.status, status: progressStatus }
       })
   }, [scopedBudgets, transactions, range, walletFilter, categoryFilter])
 
@@ -234,9 +235,7 @@ export default function BudgetPage() {
     else await addBudget(input)
     closeModal()
   }
-  async function handlePause(b) { await updateBudget(b.id, { status: b.status === 'paused' ? 'active' : 'paused' }); setOpenMenu(null) }
-  async function handleArchive(b) { await updateBudget(b.id, { status: 'archived' }); setOpenMenu(null) }
-  async function handleDuplicate(b) { await duplicateBudget(b); setOpenMenu(null) }
+  async function handlePause(b) { const nextStatus = b.budgetStatus === 'paused' ? 'active' : 'paused'; await updateBudget(b.id, { status: nextStatus }); setOpenMenu(null) }
   async function handleDelete(b) { await deleteBudget(b.id); setOpenMenu(null) }
 
   return (
@@ -326,9 +325,7 @@ export default function BudgetPage() {
                               <div className="goal-menu-backdrop" onClick={() => setOpenMenu(null)} />
                               <div className="goal-menu">
                                 <button onClick={() => { setModal(b); setOpenMenu(null) }}>Edit</button>
-                                <button onClick={() => handleDuplicate(b)}>Duplicate</button>
-                                <button onClick={() => handlePause(b)}>{b.status === 'paused' ? 'Unpause' : 'Pause'}</button>
-                                <button onClick={() => handleArchive(b)}>Archive</button>
+                                <button onClick={() => handlePause(b)}>{b.budgetStatus === 'paused' ? 'Resume' : 'Pause'}</button>
                                 <button className="danger" onClick={() => handleDelete(b)}>Delete</button>
                               </div>
                             </>
@@ -346,7 +343,7 @@ export default function BudgetPage() {
                           <span className="label">Remaining</span>
                           <span className={b.remaining < 0 ? 'neg' : ''}>{fmt(b.remaining)}</span>
                         </div>
-                        <span className={`badge badge-${b.status}`}>{STATUS_LABEL[b.status]}</span>
+                        <span className={`badge badge-${b.budgetStatus === 'paused' ? 'paused' : b.status}`}>{STATUS_LABEL[b.budgetStatus === 'paused' ? 'paused' : b.status]}</span>
                       </div>
                     </div>
                   )

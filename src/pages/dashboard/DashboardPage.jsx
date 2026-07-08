@@ -558,7 +558,7 @@ export default function DashboardPage() {
                 </span>
               </div>
               <div className="card stat-card" style={{ cursor: 'pointer' }} onClick={() => setModal('income')}>
-                <div className="stat-top"><span className="stat-icon income"><ArrowUpRight size={14} /></span><span className="stat-label">Monthly Income</span></div>
+                <div className="stat-top"><span className="stat-icon income"><ArrowUpRight size={14} /></span><span className="stat-label">Income</span></div>
                 <div className="stat-amount">{fmt(monthIncome)}</div>
                 <span className={`trend-chip on-light ${incomePct >= 0 ? 'trend-up' : 'trend-down'}`}>
                   {incomePct >= 0 ? <TrendingUp size={15} style={{ verticalAlign: 'middle', marginRight: 6 }} /> : <TrendingDown size={12} style={{ verticalAlign: 'middle', marginRight: 6 }} />}
@@ -566,7 +566,7 @@ export default function DashboardPage() {
                 </span>
               </div>
               <div className="card stat-card" style={{ cursor: 'pointer' }} onClick={() => setModal('expense')}>
-                <div className="stat-top"><span className="stat-icon expense"><ArrowDownRight size={14} /></span><span className="stat-label">Monthly Expenses</span></div>
+                <div className="stat-top"><span className="stat-icon expense"><ArrowDownRight size={14} /></span><span className="stat-label">Expenses</span></div>
                 <div className="stat-amount">{fmt(monthExpense)}</div>
                 <span className={`trend-chip on-light ${expensePct <= 0 ? 'trend-up' : 'trend-down'}`}>
                   {expensePct >= 0 ? <TrendingUp size={15} style={{ verticalAlign: 'middle', marginRight: 6 }} /> : <TrendingDown size={12} style={{ verticalAlign: 'middle', marginRight: 6 }} />}
@@ -574,7 +574,7 @@ export default function DashboardPage() {
                 </span>
               </div>
               <div className="card stat-card" title={`Savings = Income (${fmt(monthIncome)}) − Expenses (${fmt(monthExpense)})`}>
-                <div className="stat-top"><span className="stat-icon savings"><PiggyBank size={14} /></span><span className="stat-label">Monthly Savings</span></div>
+                <div className="stat-top"><span className="stat-icon savings"><PiggyBank size={14} /></span><span className="stat-label">Savings</span></div>
                 <div className="stat-amount">{fmt(savings)}</div>
                 <span className={`trend-chip on-light ${savings >= prevSavings ? 'trend-up' : 'trend-down'}`}>
                   {savingsPct >= 0 ? <TrendingUp size={15} style={{ verticalAlign: 'middle', marginRight: 6 }} /> : <TrendingDown size={12} style={{ verticalAlign: 'middle', marginRight: 6 }} />}
