@@ -9,6 +9,7 @@ import DashboardPage from '@/pages/dashboard/DashboardPage'
 import TransactionsPage from '@/pages/transactions/TransactionsPage'
 import WalletPage from '@/pages/wallet/WalletPage'
 import GoalsPage from '@/pages/goals/GoalsPage'
+import BudgetPage from '@/pages/budgets/BudgetPage'
 import AnalyticsPage from '@/pages/analytics/AnalyticsPage'
 import SettingsPage from '@/pages/settings/SettingsPage'
 
@@ -33,6 +34,7 @@ function App() {
         <Route path="/transactions" element={<TransactionsPage />} />
         <Route path="/wallet" element={<WalletPage />} />
         <Route path="/goals" element={<GoalsPage />} />
+        <Route path="/budgets" element={<BudgetPage />} />
         <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Route>

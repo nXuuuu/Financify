@@ -82,6 +82,10 @@ export default function AppLayout() {
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1" /></svg>
             Goals
           </NavLink>
+          <NavLink to="/budgets" className={navLinkClass}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 3h18v18H3V3z" /><path d="M3 9h18" /><path d="M9 21V9" /></svg>
+            Budgets
+          </NavLink>
           <NavLink to="/wallet" className={navLinkClass}>
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" /><path d="M17 12h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a2 2 0 0 1 0-4z" /></svg>
             Wallet
