@@ -115,11 +115,10 @@
 
   /* Goals grid */
   .goals-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-  .goals-grid > :last-child:nth-child(odd){
+  .goal-card{ background:#fff; border:1px solid var(--border); border-radius: var(--radius-md); padding:16px; }
+  .goal-card:nth-child(odd):last-child{
     grid-column: span 2;
   }
-  
-  .goal-card{ background:#fff; border:1px solid var(--border); border-radius: var(--radius-md); padding:16px; }
   .goal-head{ display:flex; align-items:center; gap:10px; margin-bottom:14px; }
   .goal-icon{ width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-weight:700; font-size:13px; color:#fff; }
   .goal-icon.icon-in_progress{ background: linear-gradient(135deg, var(--green), var(--green-dark)); }
@@ -162,11 +161,13 @@
   .goal-menu{
     position:absolute; top:32px; right:0; z-index:20; background:#fff; border:1px solid var(--border);
     border-radius:12px; box-shadow:0 12px 30px rgba(18,37,28,0.14); padding:6px; display:flex;
-    flex-direction:column; min-width:150px;
+    flex-direction:column;
   }
+  .goal-menu.align-up{ top:auto; bottom:32px; }
   .goal-menu button{
     text-align:left; background:none; border:none; padding:9px 10px; border-radius:8px;
-    font-size:12.5px; font-weight:600; color:var(--ink); cursor:pointer;
+    font-size:12.5px; font-weight:600; color:var(--ink); cursor:pointer; text-wrap: nowrap;
+  
   }
   .goal-menu button:hover{ background:#f2f5f0; }
   .goal-menu button.danger{ color:var(--red); }
@@ -177,15 +178,51 @@
   .badge{ font-size:10.5px; font-weight:700; padding:4px 9px; border-radius:20px; letter-spacing:0.02em; }
   .badge-success{ background:var(--green-pale); color:var(--green-dark); }
   .badge-failed{ background:var(--red-pale); color:var(--red); }
-  .badge-force{ background:#fef3c7; color:#b45309; }
+  .badge-warning{ background:#fef3c7; color:#b45309; }
+
+  .goal-btn-archive{ background:var(--amber); }
+  .goal-btn-archive:hover{ background:#d78a09; }
 
   .section-count{
     font-size:11px; font-weight:700; color:var(--muted-2); background:#f2f5f0;
     padding:2px 8px; border-radius:20px; margin-left:6px; vertical-align:middle;
+    margin-right: 10px;
   }
 
-  .goal-btn-finish{ background:var(--green); }
-  .goal-btn-finish:hover{ background:var(--green-dark); }
+  /* Transfer details */
+  .transfer-list{ display:flex; flex-direction:column; gap:6px; }
+  .transfer-list.scrollable{ max-height:220px; overflow-y:auto; padding-right:4px; }
+  .transfer-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:8px 10px; background:#f6f8f4; border-radius:9px; font-size:12.5px;
+  }
+  .transfer-wallet{ font-weight:600; flex:1; min-width:0; }
+  .transfer-date{ color:var(--muted); font-size:11.5px; }
+  .transfer-amount{ font-weight:700; color:var(--green-dark); }
+
+  /* Segmented filter (Past Goals: All / Success / Failure) */
+  .segmented{
+    display:flex; background:#f2f5f0; border:1px solid var(--border);
+    border-radius:10px; padding:3px; gap:2px; width:fit-content;
+  }
+  .segmented button{
+    border:none; background:transparent; padding:7px 13px; border-radius:8px;
+    font-size:12px; font-weight:600; color:#5b6a61; cursor:pointer;
+    transition: background .15s ease, color .15s ease;
+  }
+  .segmented button:hover{ color:var(--ink); }
+  .segmented button.active{ background:#fff; color:var(--ink); box-shadow:0 1px 3px rgba(18,37,28,0.08); }
+
+  .modal-card-sm{ max-width:320px; }
+  .btn-danger-solid{
+    flex:1; background:var(--red); color:#fff; border:none; font-weight:700;
+    font-size:13px; padding:10px; border-radius:10px; cursor:pointer;
+  }
+  .btn-danger-solid:hover{ background:#dc2626; }
+
+  .msg-banner{ margin-bottom:10px; font-size:12.5px; font-weight:600; }
+  .msg-banner.error{ color:var(--red); }
+  .msg-banner.success{ color:var(--green-dark); }
 
   /* right column */
   .rt-list{ display:flex; flex-direction:column; gap:14px; }
@@ -238,13 +275,5 @@
     .sidebar{ display:none; }
     .dashboard-grid{ grid-template-columns:1fr; }
     .stat-row{ grid-template-columns: 1fr 1fr; }
-    .goals-grid{ grid-template-columns:1fr 1fr; }
-    
-    
-  }
-  @media (max-width:700px){
     .goals-grid{ grid-template-columns:1fr; }
-    .goals-grid > :last-child:nth-child(odd){
-      grid-column: span 1;
-    }
   }
