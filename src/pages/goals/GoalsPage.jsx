@@ -181,7 +181,13 @@ export default function GoalsPage() {
             <div className="goal-name">{goal.name}</div>
             <div className="goal-deadline">{goal.deadline ? `Due ${goal.deadline}` : 'No deadline'}</div>
           </div>
-
+          {past && (
+            <div className="goal-badges">
+              {outcome(goal) === 'success'
+                ? <span className="badge badge-success">✓ Success</span>
+                : <span className="badge badge-failed">Not reached</span>}
+            </div>
+          )}
           <div className="goal-menu-wrap">
             <button
               type="button"
@@ -218,13 +224,7 @@ export default function GoalsPage() {
 
         {!past && isCompleted && <div className="goal-badges"><span className="badge badge-success">✓ Target reached</span></div>}
         {overdue && <div className="goal-badges"><span className="badge badge-warning">Deadline passed</span></div>}
-        {past && (
-          <div className="goal-badges">
-            {outcome(goal) === 'success'
-              ? <span className="badge badge-success">✓ Success</span>
-              : <span className="badge badge-failed">Not reached</span>}
-          </div>
-        )}
+        
 
         <div className="goal-amounts">
           <span className="saved">{fmt(goal.saved_amount)}</span>
@@ -272,7 +272,7 @@ export default function GoalsPage() {
           </h2>
 
         </div>
-        <div className="goals-grid">
+        <div className="goals-grid process-goals-grid">
           {grouped.current.map((g) => <GoalCard key={g.id} goal={g} past={false} />)}
           <div className="goal-card add-card" onClick={() => setModal({ type: 'new' })}>
             <div className="qi-icon">+</div>
