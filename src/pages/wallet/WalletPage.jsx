@@ -1,6 +1,12 @@
 import { useMemo, useState } from 'react'
 import { useFinance } from '@/context/FinanceContext'
-import { monthKey } from '@/lib/format'
+import { useAuth } from '@/context/AuthContext'
+import { formatCurrency, monthKey } from '@/lib/format'
+import PageHeader from '@/components/ui/PageHeader'
+import Modal from '@/components/ui/Modal'
+import FormField from '@/components/ui/FormField'
+import StatRow from '@/components/ui/StatRow'
+import StatCard from '@/components/ui/StatCard'
 import './finai/wallet.css'
 
 const ICONS = {
@@ -15,10 +21,11 @@ const STYLES = [
   { bg: '#fde68a', color: '#92400e' },
   { bg: '#e9d5ff', color: '#6b21a8' },
 ]
-const fmt = (n) => '$' + Number(n).toLocaleString()
 
 export default function WalletPage() {
   const { accounts, transactions, addAccount, addTransaction } = useFinance()
+  const { user } = useAuth()
+  const name = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'there'
   const [modal, setModal] = useState(null)
   const [presetWalletId, setPresetWalletId] = useState(null)
   const [form, setForm] = useState({})
@@ -64,10 +71,10 @@ export default function WalletPage() {
   }
 
   async function handleCreateWallet() {
-    const name = (form.name || '').trim()
-    if (!name) return
+    const walletName = (form.name || '').trim()
+    if (!walletName) return
     await addAccount({
-      name,
+      name: walletName,
       type: form.type === 'Bank Account' ? 'checking' : form.type === 'Savings' ? 'saving' : 'checking',
       balance: Number(form.balance) || 0,
       currency: 'USD',
@@ -75,40 +82,28 @@ export default function WalletPage() {
     closeModal()
   }
 
+  const modalTitle = modal === 'new-wallet' ? 'New Wallet' : modal === 'income' ? 'Add Income' : modal === 'expense' ? 'Add Expense' : 'Transfer'
+
   return (
     <div className="finai-page">
-      <div className="topbar">
-        <div className="greeting">
-          <div className="avatar">D</div>
-          <div><h1>Wallet</h1><p>Manage where your money lives</p></div>
-        </div>
-        <div className="topbar-actions">
+      <PageHeader
+        showAvatar
+        avatarName={name}
+        title="Wallet"
+        subtitle="Manage where your money lives"
+        actions={
           <button className="btn-primary" onClick={() => openModal('income')}>+ New Transaction</button>
-        </div>
-      </div>
+        }
+      />
 
       <div className="dashboard-grid">
         <div className="col-left">
-          <div className="stat-row">
-            <div className="card balance-card">
-              <div>
-                <div className="label">Total Balance</div>
-                <div className="amount">{fmt(total)}</div>
-              </div>
-            </div>
-            <div className="card stat-card">
-              <span className="stat-label">Total Wallets</span>
-              <div className="stat-amount">{accounts.length}</div>
-            </div>
-            <div className="card stat-card">
-              <span className="stat-label">Income (Month)</span>
-              <div className="stat-amount">{fmt(monthIncome)}</div>
-            </div>
-            <div className="card stat-card">
-              <span className="stat-label">Expense (Month)</span>
-              <div className="stat-amount">{fmt(monthExpense)}</div>
-            </div>
-          </div>
+          <StatRow variant="stat-row-4">
+            <StatCard balance label="Total Balance" value={formatCurrency(total)} />
+            <StatCard label="Total Wallets" value={accounts.length} />
+            <StatCard label="Income (Month)" value={formatCurrency(monthIncome)} />
+            <StatCard label="Expense (Month)" value={formatCurrency(monthExpense)} />
+          </StatRow>
 
           <div className="card">
             <div className="section-title"><h2>Your Wallets</h2></div>
@@ -122,9 +117,9 @@ export default function WalletPage() {
                         <div className="wallet-icon" style={{ background: st.bg, color: st.color }}>{ICONS[w.type] || '💰'}</div>
                         <div><div className="wallet-name">{w.name}</div><div className="wallet-type">{w.type}</div></div>
                       </div>
-                      <div className="wallet-balance">{fmt(w.balance)}</div>
+                      <div className="wallet-balance">{formatCurrency(w.balance)}</div>
                     </div>
-        
+
                     <div className="wallet-actions">
                       <button className="add-btn" onClick={() => openModal('income', w.id)}>Add Money</button>
                       <button className="send-btn" onClick={() => openModal('transfer', w.id)}>Send</button>
@@ -156,7 +151,7 @@ export default function WalletPage() {
                     <div className="rt-date">{new Date(a.date).toLocaleString()}</div>
                   </div>
                   <div className={`rt-amt ${a.type === 'income' ? 'pos' : 'neg'}`}>
-                    {a.type === 'income' ? '+' : '-'}{fmt(a.amount)}
+                    {a.type === 'income' ? '+' : '-'}{formatCurrency(a.amount)}
                   </div>
                 </div>
               ))}
@@ -165,92 +160,66 @@ export default function WalletPage() {
         </div>
       </div>
 
-      {modal && (
-        <div className="modal-overlay open" onClick={(e) => e.target === e.currentTarget && closeModal()}>
-          <div className="modal-card">
-            <div className="modal-head">
-              <h3>{modal === 'new-wallet' ? 'New Wallet' : modal === 'income' ? 'Add Income' : modal === 'expense' ? 'Add Expense' : 'Transfer'}</h3>
-              <button className="modal-close" onClick={closeModal}>✕</button>
+      <Modal open={!!modal} onClose={closeModal} title={modalTitle}>
+        {modal === 'new-wallet' ? (
+          <>
+            <FormField label="Wallet Name" onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            <div className="form-row">
+              <FormField label="Type" type="select" onChange={(e) => setForm({ ...form, type: e.target.value })}>
+                <option>Physical Cash</option><option>Bank Account</option><option>Savings</option>
+              </FormField>
+              <FormField label="Starting Balance" type="number" onChange={(e) => setForm({ ...form, balance: e.target.value })} />
             </div>
-
-            {modal === 'new-wallet' ? (
-              <>
-                <div className="form-group">
-                  <label className="form-label">Wallet Name</label>
-                  <input className="form-input" onChange={(e) => setForm({ ...form, name: e.target.value })} />
-                </div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label className="form-label">Type</label>
-                    <select className="form-select" onChange={(e) => setForm({ ...form, type: e.target.value })}>
-                      <option>Physical Cash</option><option>Bank Account</option><option>Savings</option>
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Starting Balance</label>
-                    <input className="form-input" type="number" onChange={(e) => setForm({ ...form, balance: e.target.value })} />
-                  </div>
-                </div>
-                <div className="modal-actions">
-                  <button className="btn-ghost" onClick={closeModal}>Cancel</button>
-                  <button className="btn-primary" onClick={handleCreateWallet}>Create Wallet</button>
-                </div>
-              </>
+            <div className="modal-actions">
+              <button className="btn-ghost" onClick={closeModal}>Cancel</button>
+              <button className="btn-primary" onClick={handleCreateWallet}>Create Wallet</button>
+            </div>
+          </>
+        ) : (
+          <>
+            {modal === 'transfer' ? (
+              <FormField
+                label="From Wallet"
+                type="select"
+                defaultValue={presetWalletId || ''}
+                onChange={(e) => setForm({ ...form, fromId: e.target.value })}
+              >
+                {accounts.map((w) => <option key={w.id} value={w.id}>{w.name} ({formatCurrency(w.balance)})</option>)}
+              </FormField>
             ) : (
-              <>
-                {modal === 'transfer' ? (
-                  <div className="form-group">
-                    <label className="form-label">From Wallet</label>
-                    <select className="form-select" defaultValue={presetWalletId || ''} onChange={(e) => setForm({ ...form, fromId: e.target.value })}>
-                      {accounts.map((w) => <option key={w.id} value={w.id}>{w.name} ({fmt(w.balance)})</option>)}
-                    </select>
-                  </div>
-                ) : (
-                  <div className="form-group">
-                    <label className="form-label">Wallet</label>
-                    <select className="form-select" defaultValue={presetWalletId || ''} onChange={(e) => setForm({ ...form, walletId: e.target.value })}>
-                      {accounts.map((w) => <option key={w.id} value={w.id}>{w.name} ({fmt(w.balance)})</option>)}
-                    </select>
-                  </div>
-                )}
-                {modal === 'transfer' && (
-                  <div className="form-group">
-                    <label className="form-label">To Wallet</label>
-                    <select className="form-select" onChange={(e) => setForm({ ...form, toId: e.target.value })}>
-                      <option value="">Select…</option>
-                      {accounts.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)}
-                    </select>
-                  </div>
-                )}
-                <div className="form-row">
-                  <div className="form-group">
-                    <label className="form-label">Amount</label>
-                    <input className="form-input" type="number" onChange={(e) => setForm({ ...form, amount: e.target.value })} />
-                  </div>
-                  {modal === 'income' && (
-                    <div className="form-group">
-                      <label className="form-label">Source</label>
-                      <input className="form-input" onChange={(e) => setForm({ ...form, source: e.target.value })} />
-                    </div>
-                  )}
-                  {modal === 'expense' && (
-                    <div className="form-group">
-                      <label className="form-label">Category</label>
-                      <select className="form-select" onChange={(e) => setForm({ ...form, category: e.target.value })}>
-                        <option>Food & Dining</option><option>Transport</option><option>Shopping</option><option>Bills</option><option>Other</option>
-                      </select>
-                    </div>
-                  )}
-                </div>
-                <div className="modal-actions">
-                  <button className="btn-ghost" onClick={closeModal}>Cancel</button>
-                  <button className="btn-primary" onClick={handleSave}>Save</button>
-                </div>
-              </>
+              <FormField
+                label="Wallet"
+                type="select"
+                defaultValue={presetWalletId || ''}
+                onChange={(e) => setForm({ ...form, walletId: e.target.value })}
+              >
+                {accounts.map((w) => <option key={w.id} value={w.id}>{w.name} ({formatCurrency(w.balance)})</option>)}
+              </FormField>
             )}
-          </div>
-        </div>
-      )}
+            {modal === 'transfer' && (
+              <FormField label="To Wallet" type="select" onChange={(e) => setForm({ ...form, toId: e.target.value })}>
+                <option value="">Select…</option>
+                {accounts.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)}
+              </FormField>
+            )}
+            <div className="form-row">
+              <FormField label="Amount" type="number" onChange={(e) => setForm({ ...form, amount: e.target.value })} />
+              {modal === 'income' && (
+                <FormField label="Source" onChange={(e) => setForm({ ...form, source: e.target.value })} />
+              )}
+              {modal === 'expense' && (
+                <FormField label="Category" type="select" onChange={(e) => setForm({ ...form, category: e.target.value })}>
+                  <option>Food & Dining</option><option>Transport</option><option>Shopping</option><option>Bills</option><option>Other</option>
+                </FormField>
+              )}
+            </div>
+            <div className="modal-actions">
+              <button className="btn-ghost" onClick={closeModal}>Cancel</button>
+              <button className="btn-primary" onClick={handleSave}>Save</button>
+            </div>
+          </>
+        )}
+      </Modal>
     </div>
   )
 }

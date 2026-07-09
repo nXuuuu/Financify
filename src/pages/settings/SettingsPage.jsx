@@ -1,6 +1,10 @@
 import { useRef, useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase' // adjust path to match your project
+import PageHeader from '@/components/ui/PageHeader'
+import Modal from '@/components/ui/Modal'
+import FormField from '@/components/ui/FormField'
+import Avatar from '@/components/ui/Avatar'
 import './finai/settings.css'
 
 function maskEmail(email) {
@@ -169,14 +173,7 @@ export default function SettingsPage() {
 
   return (
     <div className="finai-page">
-      <div className="topbar">
-        <div className="greeting">
-          <div>
-            <h1>Settings</h1>
-            <p>Manage your account and app preferences</p>
-          </div>
-        </div>
-      </div>
+      <PageHeader title="Settings" subtitle="Manage your account and app preferences" />
 
       {msg && <p className={`msg-banner ${msg.type}`}>{msg.text}</p>}
 
@@ -192,9 +189,7 @@ export default function SettingsPage() {
         {/* Profile photo */}
         <div className="setting-row">
           <div className="row-left-avatar">
-            <div className="avatar-lg" style={avatarUrl ? { backgroundImage: `url(${avatarUrl})` } : undefined}>
-              {!avatarUrl && initials}
-            </div>
+            <Avatar initials={initials} url={avatarUrl} size="lg" />
             <div className="setting-info">
               <div className="s-title">Profile</div>
               {/* <div className="s-sub">JPG or PNG, at least 200x200px</div> */}
@@ -221,17 +216,17 @@ export default function SettingsPage() {
             <div className="s-title">Name</div>
             {editingName ? (
               <div className="name-edit-inputs">
-                <input
-                  className="form-input"
+                <FormField
                   value={profile.first_name}
                   placeholder="First name"
                   onChange={(e) => setProfile({ ...profile, first_name: e.target.value })}
+                  wrapperStyle={{ marginBottom: 0 }}
                 />
-                <input
-                  className="form-input"
+                <FormField
                   value={profile.last_name}
                   placeholder="Last name"
                   onChange={(e) => setProfile({ ...profile, last_name: e.target.value })}
+                  wrapperStyle={{ marginBottom: 0 }}
                 />
               </div>
             ) : (
@@ -344,74 +339,52 @@ export default function SettingsPage() {
       </div>
 
       {/* ---------------- Modals ---------------- */}
-      {modal === 'reveal-email' && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            <h3>Confirm your password</h3>
-            <p className="s-sub">Enter your password to view your full email address.</p>
-            <div className="form-group">
-              <input
-                className="form-input"
-                type="password"
-                placeholder="Password"
-                value={authPassword}
-                onChange={(e) => setAuthPassword(e.target.value)}
-                autoFocus
-              />
-            </div>
-            {modalError && <p className="msg-banner error">{modalError}</p>}
-            <div className="modal-actions">
-              <button className="btn-ghost-sm" onClick={closeModal}>Cancel</button>
-              <button className="btn-primary" onClick={confirmRevealEmail} disabled={modalBusy}>
-                {modalBusy ? 'Checking…' : 'Confirm'}
-              </button>
-            </div>
-          </div>
+      <Modal open={modal === 'reveal-email'} onClose={closeModal} title="Confirm your password" size="sm">
+        <p className="s-sub" style={{ marginBottom: 14 }}>Enter your password to view your full email address.</p>
+        <FormField
+          type="password"
+          placeholder="Password"
+          value={authPassword}
+          onChange={(e) => setAuthPassword(e.target.value)}
+          autoFocus
+        />
+        {modalError && <p className="msg-banner error">{modalError}</p>}
+        <div className="modal-actions">
+          <button className="btn-ghost-sm" onClick={closeModal}>Cancel</button>
+          <button className="btn-primary" onClick={confirmRevealEmail} disabled={modalBusy}>
+            {modalBusy ? 'Checking…' : 'Confirm'}
+          </button>
         </div>
-      )}
+      </Modal>
 
-      {modal === 'change-password' && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            <h3>Change password</h3>
-            <div className="form-group">
-              <label className="form-label">Current password</label>
-              <input
-                className="form-input"
-                type="password"
-                value={authPassword}
-                onChange={(e) => setAuthPassword(e.target.value)}
-                autoFocus
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label">New password</label>
-              <input
-                className="form-input"
-                type="password"
-                value={pwForm.next}
-                onChange={(e) => setPwForm({ ...pwForm, next: e.target.value })}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Confirm new password</label>
-              <input
-                className="form-input"
-                type="password"
-                value={pwForm.confirm}
-                onChange={(e) => setPwForm({ ...pwForm, confirm: e.target.value })}
-              />
-            </div>
-            {modalError && <p className="msg-banner error">{modalError}</p>}
-            <div className="modal-actions">
-              <button className="btn-ghost-sm" onClick={closeModal}>Cancel</button>
-              <button className="btn-primary" onClick={submitChangePassword} disabled={modalBusy}>
-                {modalBusy ? 'Saving…' : 'Save changes'}
-              </button>
-            </div>
-          </div>
+      <Modal open={modal === 'change-password'} onClose={closeModal} title="Change password" size="sm">
+        <FormField
+          label="Current password"
+          type="password"
+          value={authPassword}
+          onChange={(e) => setAuthPassword(e.target.value)}
+          autoFocus
+        />
+        <FormField
+          label="New password"
+          type="password"
+          value={pwForm.next}
+          onChange={(e) => setPwForm({ ...pwForm, next: e.target.value })}
+        />
+        <FormField
+          label="Confirm new password"
+          type="password"
+          value={pwForm.confirm}
+          onChange={(e) => setPwForm({ ...pwForm, confirm: e.target.value })}
+        />
+        {modalError && <p className="msg-banner error">{modalError}</p>}
+        <div className="modal-actions">
+          <button className="btn-ghost-sm" onClick={closeModal}>Cancel</button>
+          <button className="btn-primary" onClick={submitChangePassword} disabled={modalBusy}>
+            {modalBusy ? 'Saving…' : 'Save changes'}
+          </button>
         </div>
-      )}
+      </Modal>
     </div>
   )
 }

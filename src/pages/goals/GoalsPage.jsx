@@ -1,8 +1,16 @@
 import { useMemo, useState } from 'react'
 import { useFinance } from '@/context/FinanceContext'
+import { formatCurrency } from '@/lib/format'
+import PageHeader from '@/components/ui/PageHeader'
+import StatRow from '@/components/ui/StatRow'
+import StatCard from '@/components/ui/StatCard'
+import Modal from '@/components/ui/Modal'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import FormField from '@/components/ui/FormField'
+import Badge from '@/components/ui/Badge'
+import DropdownMenu, { DropdownMenuItem } from '@/components/ui/DropdownMenu'
 import './finai/goals.css'
 
-const fmt = (n) => '$' + Number(n).toLocaleString()
 const todayStr = () => new Date().toISOString().slice(0, 10)
 const initials = (name) => (name || '').trim().slice(0, 2).toUpperCase() || '?'
 
@@ -27,6 +35,13 @@ const PAST_FILTERS = [
   { key: 'success', label: 'Success' },
   { key: 'failure', label: 'Failure' },
 ]
+
+const MODAL_TITLES = {
+  new: 'New Goal',
+  edit: 'Update Goal',
+  add: 'Add Money',
+  details: 'Transaction Details',
+}
 
 export default function GoalsPage() {
   const {
@@ -184,51 +199,50 @@ export default function GoalsPage() {
           {past && (
             <div className="goal-badges">
               {outcome(goal) === 'success'
-                ? <span className="badge badge-success">✓ Success</span>
-                : <span className="badge badge-failed">Not reached</span>}
+                ? <Badge status="success">✓ Success</Badge>
+                : <Badge status="failed">Not reached</Badge>}
             </div>
           )}
-          <div className="goal-menu-wrap">
-            <button
-              type="button"
-              className="goal-menu-btn"
-              onClick={(e) => toggleMenu(e, goal.id)}
-              aria-label="Goal actions"
-            >
-              ⋮
-            </button>
-            {openMenu === goal.id && (
+          <DropdownMenu
+            open={openMenu === goal.id}
+            onClose={() => setOpenMenu(null)}
+            align={menuAlign}
+            trigger={
+              <button
+                type="button"
+                className="goal-menu-btn"
+                onClick={(e) => toggleMenu(e, goal.id)}
+                aria-label="Goal actions"
+              >
+                ⋮
+              </button>
+            }
+          >
+            {!past && (
               <>
-                <div className="goal-menu-backdrop" onClick={() => setOpenMenu(null)} />
-                <div className={`goal-menu ${menuAlign === 'up' ? 'align-up' : ''}`}>
-                  {!past && (
-                    <>
-                      <button type="button" onClick={() => openEdit(goal)}>Update goal</button>
-                      <button type="button" onClick={() => handleArchive(goal)}>Archive goal</button>
-                    </>
-                  )}
-                  <button type="button" onClick={() => openDetails(goal)}>Transaction details</button>
-                  {past && (
-                    <button type="button" onClick={() => handleRetrieve(goal)}>Retrieve to current</button>
-                  )}
-                  {past && (
-                    <button type="button" className="danger" onClick={() => { setConfirmDeleteGoal(goal); setOpenMenu(null) }}>
-                      Delete goal
-                    </button>
-                  )}
-                </div>
+                <DropdownMenuItem onClick={() => openEdit(goal)}>Update goal</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleArchive(goal)}>Archive goal</DropdownMenuItem>
               </>
             )}
-          </div>
+            <DropdownMenuItem onClick={() => openDetails(goal)}>Transaction details</DropdownMenuItem>
+            {past && (
+              <DropdownMenuItem onClick={() => handleRetrieve(goal)}>Retrieve to current</DropdownMenuItem>
+            )}
+            {past && (
+              <DropdownMenuItem danger onClick={() => { setConfirmDeleteGoal(goal); setOpenMenu(null) }}>
+                Delete goal
+              </DropdownMenuItem>
+            )}
+          </DropdownMenu>
         </div>
 
-        {!past && isCompleted && <div className="goal-badges"><span className="badge badge-success">✓ Target reached</span></div>}
-        {overdue && <div className="goal-badges"><span className="badge badge-warning">Deadline passed</span></div>}
-        
+        {!past && isCompleted && <div className="goal-badges"><Badge status="success">✓ Target reached</Badge></div>}
+        {overdue && <div className="goal-badges"><Badge status="warning">Deadline passed</Badge></div>}
+
 
         <div className="goal-amounts">
-          <span className="saved">{fmt(goal.saved_amount)}</span>
-          <span className="target">of {fmt(goal.target_amount)}</span>
+          <span className="saved">{formatCurrency(goal.saved_amount)}</span>
+          <span className="target">of {formatCurrency(goal.target_amount)}</span>
         </div>
         <div className="progress-track">
           <div
@@ -250,23 +264,24 @@ export default function GoalsPage() {
 
   return (
     <div className="finai-page">
-      <div className="topbar">
-        <div className="greeting"><div><h1>Goals</h1><p>Track your savings targets</p></div></div>
-        <div className="topbar-actions">
+      <PageHeader
+        title="Goals"
+        subtitle="Track your savings targets"
+        actions={
           <button type="button" className="btn-primary" onClick={() => setModal({ type: 'new' })}>+ New Goal</button>
-        </div>
-      </div>
+        }
+      />
 
-      <div className="stat-row">
-        <div className="card stat-card"><span className="stat-label">Total Target</span><div className="stat-amount">{fmt(stats.totalTarget)}</div></div>
-        <div className="card stat-card"><span className="stat-label">Total Saved</span><div className="stat-amount">{fmt(stats.totalSaved)}</div></div>
-        <div className="card stat-card"><span className="stat-label">Avg Progress</span><div className="stat-amount">{stats.avg}%</div></div>
-        <div className="card stat-card"><span className="stat-label">Success Rate</span><div className="stat-amount">{stats.successRate}%</div></div>
-      </div>
+      <StatRow>
+        <StatCard label="Total Target" value={formatCurrency(stats.totalTarget)} />
+        <StatCard label="Total Saved" value={formatCurrency(stats.totalSaved)} />
+        <StatCard label="Avg Progress" value={`${stats.avg}%`} />
+        <StatCard label="Success Rate" value={`${stats.successRate}%`} />
+      </StatRow>
 
       <div className="card">
         <div className="section-title">
-          <h2>In Progress 
+          <h2>In Progress
             <span className="section-count">{grouped.current.length}</span>
             {grouped.current.length === 0 && <span className="spending-total">No goals in progress yet.</span>}
           </h2>
@@ -278,7 +293,7 @@ export default function GoalsPage() {
             <div className="qi-icon">+</div>
             New Goal
           </div>
-         
+
         </div>
       </div>
 
@@ -304,236 +319,208 @@ export default function GoalsPage() {
         </div>
       </div>
 
-      {modal && (
-        <div className="modal-overlay open" onClick={(e) => e.target === e.currentTarget && closeModal()}>
-          <div className="modal-card">
-            <div className="modal-head">
-              <h3>
-                {modal.type === 'new' && 'New Goal'}
-                {modal.type === 'edit' && 'Update Goal'}
-                {modal.type === 'add' && 'Add Money'}
-                {modal.type === 'details' && 'Transaction Details'}
-              </h3>
-              <button type="button" className="modal-close" onClick={closeModal}>✕</button>
+      <Modal open={!!modal} onClose={closeModal} title={modal ? MODAL_TITLES[modal.type] : ''}>
+        {modal?.type === 'new' && (
+          <>
+            <FormField label="Goal Name" onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            <div className="form-row">
+              <FormField label="Target Amount" type="number" onChange={(e) => setForm({ ...form, target: e.target.value })} />
+              <FormField label="Deadline" type="date" onChange={(e) => setForm({ ...form, deadline: e.target.value })} />
             </div>
-
-            {modal.type === 'new' && (
-              <>
-                <div className="form-group"><label className="form-label">Goal Name</label><input className="form-input" onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
-                <div className="form-row">
-                  <div className="form-group"><label className="form-label">Target Amount</label><input className="form-input" type="number" onChange={(e) => setForm({ ...form, target: e.target.value })} /></div>
-                  <div className="form-group"><label className="form-label">Deadline</label><input className="form-input" type="date" onChange={(e) => setForm({ ...form, deadline: e.target.value })} /></div>
-                </div>
-                <div className="modal-actions">
-                  <button type="button" className="btn-ghost" onClick={closeModal}>Cancel</button>
-                  <button type="button" className="btn-primary" onClick={handleCreate}>Create Goal</button>
-                </div>
-              </>
-            )}
-
-            {modal.type === 'edit' && (
-              <>
-                <div className="form-group"><label className="form-label">Goal Name</label><input className="form-input" value={form.name || ''} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label className="form-label">Target Amount</label>
-                    <input
-                      className="form-input"
-                      type="number"
-                      min={modal.goal.saved_amount}
-                      value={form.target || ''}
-                      onChange={(e) => setForm({ ...form, target: e.target.value })}
-                    />
-                  </div>
-                  <div className="form-group"><label className="form-label">Deadline</label><input className="form-input" type="date" value={form.deadline || ''} onChange={(e) => setForm({ ...form, deadline: e.target.value })} /></div>
-                </div>
-                {modalError && <p className="msg-banner error">{modalError}</p>}
-                <div className="modal-actions">
-                  <button type="button" className="btn-ghost" onClick={closeModal}>Cancel</button>
-                  <button type="button" className="btn-primary" onClick={handleEdit}>Save Changes</button>
-                </div>
-              </>
-            )}
-
-            {modal.type === 'add' && (() => {
-              const goal = modal.goal
-              const needed = Math.max(0, Number(goal.target_amount) - Number(goal.saved_amount))
-              const selectedAccount = accounts.find((a) => a.id === form.account_id)
-              const walletBalance = selectedAccount ? Number(selectedAccount.balance) : 0
-
-              // Recomputes the auto-fill amount for whichever wallet is
-              // selected, whenever "fill goal" is checked (or the wallet
-              // changes while it's checked).
-              function amountToFill(balance) {
-                return Math.min(balance, needed)
-              }
-
-              function handleFillToggle(checked) {
-                if (checked) {
-                  setForm({ ...form, fillGoal: true, amount: amountToFill(walletBalance) })
-                } else {
-                  setForm({ ...form, fillGoal: false, amount: '' })
-                }
-              }
-
-              function handleWalletChange(accId) {
-                if (form.fillGoal) {
-                  const acc = accounts.find((a) => a.id === accId)
-                  setForm({ ...form, account_id: accId, amount: amountToFill(acc ? Number(acc.balance) : 0) })
-                } else {
-                  setForm({ ...form, account_id: accId })
-                }
-              }
-
-              // Clamps to `needed` the instant the typed value crosses it —
-              // the field can never hold an amount higher than what the
-              // goal actually needs, so Transfer can fire instantly with
-              // no capping/notice step at submit time.
-              function handleAmountChange(raw) {
-                const num = Number(raw)
-                if (raw !== '' && !Number.isNaN(num) && num > needed) {
-                  setForm({ ...form, amount: needed })
-                } else {
-                  setForm({ ...form, amount: raw })
-                }
-              }
-
-              return (
-                <>
-                  <div className="form-group">
-                    <label className="form-label">From Wallet</label>
-                    {accounts.length === 0 ? (
-                      <p className="spending-total">Add a wallet account first.</p>
-                    ) : (
-                      <select
-                        className="form-select"
-                        value={form.account_id || ''}
-                        onChange={(e) => handleWalletChange(e.target.value)}
-                      >
-                        {accounts.map((a) => (
-                          <option key={a.id} value={a.id}>{a.name} — {fmt(a.balance)}</option>
-                        ))}
-                      </select>
-                    )}
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Amount</label>
-                    <input
-                      className="form-input"
-                      type="number"
-                      max={needed}
-                      value={form.amount ?? ''}
-                      disabled={!!form.fillGoal}
-                      onChange={(e) => handleAmountChange(e.target.value)}
-                    />
-                    <div className="goal-deadline" style={{ marginTop: 6 }}>
-                      {Number(form.amount) === needed
-                        ? `Only ${fmt(needed)} is needed to complete this goal — that's what will be transferred.`
-                        : `${fmt(needed)} needed to complete this goal`}
-                    </div>
-                  </div>
-
-                  <div className="form-group">
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, fontWeight: 600, color: 'var(--ink)', cursor: 'pointer' }}>
-                      <input
-                        type="checkbox"
-                        checked={!!form.fillGoal}
-                        onChange={(e) => handleFillToggle(e.target.checked)}
-                      />
-                      Fill goal completely from this wallet
-                    </label>
-                  </div>
-
-                  {modalError && <p className="msg-banner error">{modalError}</p>}
-
-                  <div className="modal-actions">
-                    <button type="button" className="btn-ghost" onClick={closeModal}>Cancel</button>
-                    <button
-                      type="button"
-                      className="btn-primary"
-                      onClick={handleContribute}
-                      disabled={accounts.length === 0 || needed <= 0 || walletBalance <= 0}
-                    >
-                      Transfer
-                    </button>
-                  </div>
-                </>
-              )
-            })()}
-
-            {modal.type === 'details' && (() => {
-              const goal = modal.goal
-              const contributions = contributionsFor(goal.id)
-              const totalsByWallet = contributions.reduce((acc, c) => {
-                const key = c.account_id || 'unknown'
-                acc[key] = (acc[key] || 0) + Number(c.amount)
-                return acc
-              }, {})
-
-              return (
-                <>
-                  <div className="form-group">
-                    <label className="form-label">Goal</label>
-                    <div className="s-title">{goal.name}</div>
-                    <div className="goal-deadline">{goal.deadline ? `Due ${goal.deadline}` : 'No deadline'} · {fmt(goal.saved_amount)} of {fmt(goal.target_amount)}</div>
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Transfers by wallet</label>
-                    {Object.keys(totalsByWallet).length === 0 && <p className="spending-total">No transfers yet.</p>}
-                    <div className="transfer-list">
-                      {Object.entries(totalsByWallet).map(([accId, total]) => (
-                        <div className="transfer-row" key={accId}>
-                          <span className="transfer-wallet">{accId === 'unknown' ? 'Unknown wallet' : walletName(accId)}</span>
-                          <span className="transfer-amount">{fmt(total)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {contributions.length > 0 && (
-                    <div className="form-group">
-                      <label className="form-label">All transfers</label>
-                      <div className="transfer-list scrollable">
-                        {contributions.map((c) => (
-                          <div className="transfer-row" key={c.id}>
-                            <span className="transfer-wallet">{c.account_id ? walletName(c.account_id) : 'Unknown wallet'}</span>
-                            <span className="transfer-date">{new Date(c.created_at).toLocaleDateString()}</span>
-                            <span className="transfer-amount">{fmt(c.amount)}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="modal-actions">
-                    <button type="button" className="btn-ghost" onClick={closeModal}>Close</button>
-                  </div>
-                </>
-              )
-            })()}
-          </div>
-        </div>
-      )}
-
-      {confirmDeleteGoal && (
-        <div className="modal-overlay open" onClick={(e) => e.target === e.currentTarget && setConfirmDeleteGoal(null)}>
-          <div className="modal-card modal-card-sm">
-            <div className="modal-head">
-              <h3>Delete goal</h3>
-              <button type="button" className="modal-close" onClick={() => setConfirmDeleteGoal(null)}>✕</button>
-            </div>
-            <p className="s-sub">
-              Delete <strong>{confirmDeleteGoal.name}</strong>? This can't be undone — it will be removed for good.
-            </p>
             <div className="modal-actions">
-              <button type="button" className="btn-ghost" onClick={() => setConfirmDeleteGoal(null)}>Cancel</button>
-              <button type="button" className="btn-danger-solid" onClick={confirmDelete}>Delete</button>
+              <button type="button" className="btn-ghost" onClick={closeModal}>Cancel</button>
+              <button type="button" className="btn-primary" onClick={handleCreate}>Create Goal</button>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+
+        {modal?.type === 'edit' && (
+          <>
+            <FormField label="Goal Name" value={form.name || ''} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            <div className="form-row">
+              <FormField
+                label="Target Amount"
+                type="number"
+                min={modal.goal.saved_amount}
+                value={form.target || ''}
+                onChange={(e) => setForm({ ...form, target: e.target.value })}
+              />
+              <FormField label="Deadline" type="date" value={form.deadline || ''} onChange={(e) => setForm({ ...form, deadline: e.target.value })} />
+            </div>
+            {modalError && <p className="msg-banner error">{modalError}</p>}
+            <div className="modal-actions">
+              <button type="button" className="btn-ghost" onClick={closeModal}>Cancel</button>
+              <button type="button" className="btn-primary" onClick={handleEdit}>Save Changes</button>
+            </div>
+          </>
+        )}
+
+        {modal?.type === 'add' && (() => {
+          const goal = modal.goal
+          const needed = Math.max(0, Number(goal.target_amount) - Number(goal.saved_amount))
+          const selectedAccount = accounts.find((a) => a.id === form.account_id)
+          const walletBalance = selectedAccount ? Number(selectedAccount.balance) : 0
+
+          // Recomputes the auto-fill amount for whichever wallet is
+          // selected, whenever "fill goal" is checked (or the wallet
+          // changes while it's checked).
+          function amountToFill(balance) {
+            return Math.min(balance, needed)
+          }
+
+          function handleFillToggle(checked) {
+            if (checked) {
+              setForm({ ...form, fillGoal: true, amount: amountToFill(walletBalance) })
+            } else {
+              setForm({ ...form, fillGoal: false, amount: '' })
+            }
+          }
+
+          function handleWalletChange(accId) {
+            if (form.fillGoal) {
+              const acc = accounts.find((a) => a.id === accId)
+              setForm({ ...form, account_id: accId, amount: amountToFill(acc ? Number(acc.balance) : 0) })
+            } else {
+              setForm({ ...form, account_id: accId })
+            }
+          }
+
+          // Clamps to `needed` the instant the typed value crosses it —
+          // the field can never hold an amount higher than what the
+          // goal actually needs, so Transfer can fire instantly with
+          // no capping/notice step at submit time.
+          function handleAmountChange(raw) {
+            const num = Number(raw)
+            if (raw !== '' && !Number.isNaN(num) && num > needed) {
+              setForm({ ...form, amount: needed })
+            } else {
+              setForm({ ...form, amount: raw })
+            }
+          }
+
+          return (
+            <>
+              <div className="form-group">
+                <label className="form-label">From Wallet</label>
+                {accounts.length === 0 ? (
+                  <p className="spending-total">Add a wallet account first.</p>
+                ) : (
+                  <FormField
+                    type="select"
+                    value={form.account_id || ''}
+                    onChange={(e) => handleWalletChange(e.target.value)}
+                    options={accounts.map((a) => ({ value: a.id, label: `${a.name} — ${formatCurrency(a.balance)}` }))}
+                    wrapperStyle={{ margin: 0 }}
+                  />
+                )}
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Amount</label>
+                <input
+                  className="form-input"
+                  type="number"
+                  max={needed}
+                  value={form.amount ?? ''}
+                  disabled={!!form.fillGoal}
+                  onChange={(e) => handleAmountChange(e.target.value)}
+                />
+                <div className="goal-deadline" style={{ marginTop: 6 }}>
+                  {Number(form.amount) === needed
+                    ? `Only ${formatCurrency(needed)} is needed to complete this goal — that's what will be transferred.`
+                    : `${formatCurrency(needed)} needed to complete this goal`}
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, fontWeight: 600, color: 'var(--ink)', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={!!form.fillGoal}
+                    onChange={(e) => handleFillToggle(e.target.checked)}
+                  />
+                  Fill goal completely from this wallet
+                </label>
+              </div>
+
+              {modalError && <p className="msg-banner error">{modalError}</p>}
+
+              <div className="modal-actions">
+                <button type="button" className="btn-ghost" onClick={closeModal}>Cancel</button>
+                <button
+                  type="button"
+                  className="btn-primary"
+                  onClick={handleContribute}
+                  disabled={accounts.length === 0 || needed <= 0 || walletBalance <= 0}
+                >
+                  Transfer
+                </button>
+              </div>
+            </>
+          )
+        })()}
+
+        {modal?.type === 'details' && (() => {
+          const goal = modal.goal
+          const contributions = contributionsFor(goal.id)
+          const totalsByWallet = contributions.reduce((acc, c) => {
+            const key = c.account_id || 'unknown'
+            acc[key] = (acc[key] || 0) + Number(c.amount)
+            return acc
+          }, {})
+
+          return (
+            <>
+              <div className="form-group">
+                <label className="form-label">Goal</label>
+                <div className="s-title">{goal.name}</div>
+                <div className="goal-deadline">{goal.deadline ? `Due ${goal.deadline}` : 'No deadline'} · {formatCurrency(goal.saved_amount)} of {formatCurrency(goal.target_amount)}</div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Transfers by wallet</label>
+                {Object.keys(totalsByWallet).length === 0 && <p className="spending-total">No transfers yet.</p>}
+                <div className="transfer-list">
+                  {Object.entries(totalsByWallet).map(([accId, total]) => (
+                    <div className="transfer-row" key={accId}>
+                      <span className="transfer-wallet">{accId === 'unknown' ? 'Unknown wallet' : walletName(accId)}</span>
+                      <span className="transfer-amount">{formatCurrency(total)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {contributions.length > 0 && (
+                <div className="form-group">
+                  <label className="form-label">All transfers</label>
+                  <div className="transfer-list scrollable">
+                    {contributions.map((c) => (
+                      <div className="transfer-row" key={c.id}>
+                        <span className="transfer-wallet">{c.account_id ? walletName(c.account_id) : 'Unknown wallet'}</span>
+                        <span className="transfer-date">{new Date(c.created_at).toLocaleDateString()}</span>
+                        <span className="transfer-amount">{formatCurrency(c.amount)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="modal-actions">
+                <button type="button" className="btn-ghost" onClick={closeModal}>Close</button>
+              </div>
+            </>
+          )
+        })()}
+      </Modal>
+
+      <ConfirmDialog
+        open={!!confirmDeleteGoal}
+        onClose={() => setConfirmDeleteGoal(null)}
+        title="Delete goal"
+        message={<>Delete <strong>{confirmDeleteGoal?.name}</strong>? This can't be undone — it will be removed for good.</>}
+        confirmLabel="Delete"
+        onConfirm={confirmDelete}
+      />
     </div>
   )
 }

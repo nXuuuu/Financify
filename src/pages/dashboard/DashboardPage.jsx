@@ -1,12 +1,16 @@
 import { useMemo, useState, useEffect, useRef } from 'react'
-import { Search, Bell, ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, Send, PlusCircle, ArrowDownToLine, CalendarClock, Coffee, AlertTriangle, X, PiggyBank, Target, Wallet2 } from 'lucide-react'
+import { Search, Bell, ArrowUp, ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, Send, PlusCircle, ArrowDownToLine, CalendarClock, Coffee, AlertTriangle, X, PiggyBank, Target, Wallet2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useFinance } from '@/context/FinanceContext'
 import { useAuth } from '@/context/AuthContext'
-import { monthKey } from '@/lib/format'
+import { formatCurrency, monthKey } from '@/lib/format'
+import PageHeader from '@/components/ui/PageHeader'
+import Modal from '@/components/ui/Modal'
+import FormField from '@/components/ui/FormField'
+import SkeletonCard from '@/components/ui/SkeletonCard'
 import './finai/dashboard.css'
 
-const fmt = (n) => '$' + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+const fmt = (n) => formatCurrency(n || 0)
 const CAT_COLORS = ['#14532d', '#6b7280', '#4ade80', '#052e16', '#a7d9b6', '#d9dfd6', '#6366f1', '#f59e0b']
 const PERIODS = [
   { id: 'week', label: 'This Week' },
@@ -89,20 +93,17 @@ function Donut({ data, selected, hovered, onSlice }) {
 
 function BreakdownModal({ title, rows, onClose }) {
   return (
-    <div className="modal-overlay open" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal-card">
-        <div className="modal-head"><h3>{title}</h3><button className="modal-close" onClick={onClose}><X size={14} /></button></div>
-        <div className="rt-list">
-          {rows.length === 0 && <p className="spending-total">Nothing to show for this period.</p>}
-          {rows.map((r) => (
-            <div className="rt-row" key={r.label}>
-              <div className="rt-info"><div className="rt-name">{r.label}</div>{r.sub && <div className="rt-date">{r.sub}</div>}</div>
-              <div className="rt-amt">{fmt(r.value)}</div>
-            </div>
-          ))}
-        </div>
+    <Modal open onClose={onClose} title={title}>
+      <div className="rt-list">
+        {rows.length === 0 && <p className="spending-total">Nothing to show for this period.</p>}
+        {rows.map((r) => (
+          <div className="rt-row" key={r.label}>
+            <div className="rt-info"><div className="rt-name">{r.label}</div>{r.sub && <div className="rt-date">{r.sub}</div>}</div>
+            <div className="rt-amt">{fmt(r.value)}</div>
+          </div>
+        ))}
       </div>
-    </div>
+    </Modal>
   )
 }
 
@@ -136,74 +137,46 @@ function TransactionModal({ kind, categories, accounts, onClose, onSave }) {
   }
 
   return (
-    <div className="modal-overlay open" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal-card">
-        <div className="modal-head"><h3>{meta.title}</h3><button className="modal-close" onClick={onClose}><X size={14} /></button></div>
+    <Modal open onClose={onClose} title={meta.title}>
+      <FormField label="Wallet" type="select" value={form.account_id} onChange={(e) => set({ account_id: e.target.value })}>
+        <option value="" disabled>Select…</option>
+        {accounts.map((a) => <option key={a.id} value={a.id}>{a.name} ({fmt(a.balance)})</option>)}
+      </FormField>
 
-        <div className="form-group">
-          <label className="form-label">Wallet</label>
-          <select className="form-select" value={form.account_id} onChange={(e) => set({ account_id: e.target.value })}>
-            <option value="" disabled>Select…</option>
-            {accounts.map((a) => <option key={a.id} value={a.id}>{a.name} ({fmt(a.balance)})</option>)}
-          </select>
-        </div>
+      <FormField label="Amount" type="number" min="0.01" step="0.01" value={form.amount || ''} onChange={(e) => set({ amount: e.target.value })} />
 
-        <div className="form-group">
-          <label className="form-label">Amount</label>
-          <input className="form-input" type="number" min="0.01" step="0.01" value={form.amount || ''} onChange={(e) => set({ amount: e.target.value })} />
-        </div>
-
-        {kind === 'income' && (
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">Income Source</label>
-              <input className="form-input" value={form.source || ''} onChange={(e) => set({ source: e.target.value })} />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Category</label>
-              <select className="form-select" value={form.category || ''} onChange={(e) => set({ category: e.target.value })}>
-                <option value="" disabled>Select…</option>
-                {catList.map((c) => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </div>
-          </div>
-        )}
-
-        {kind === 'expense' && (
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">Category</label>
-              <select className="form-select" value={form.category || ''} onChange={(e) => set({ category: e.target.value })}>
-                <option value="" disabled>Select…</option>
-                {catList.map((c) => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </div>
-            <div className="form-group">
-              <label className="form-label">Merchant (optional)</label>
-              <input className="form-input" value={form.merchant || ''} onChange={(e) => set({ merchant: e.target.value })} />
-            </div>
-          </div>
-        )}
-
+      {kind === 'income' && (
         <div className="form-row">
-          <div className="form-group">
-            <label className="form-label">Date</label>
-            <input className="form-input" type="date" value={form.date || ''} onChange={(e) => set({ date: e.target.value })} />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Notes (optional)</label>
-            <input className="form-input" value={form.notes || ''} onChange={(e) => set({ notes: e.target.value })} />
-          </div>
+          <FormField label="Income Source" value={form.source || ''} onChange={(e) => set({ source: e.target.value })} />
+          <FormField label="Category" type="select" value={form.category || ''} onChange={(e) => set({ category: e.target.value })}>
+            <option value="" disabled>Select…</option>
+            {catList.map((c) => <option key={c} value={c}>{c}</option>)}
+          </FormField>
         </div>
+      )}
 
-        {err && <span className="field-error">{err}</span>}
-
-        <div className="modal-actions">
-          <button className="btn-ghost" onClick={onClose}>Cancel</button>
-          <button className="btn-primary" onClick={submit}>Save</button>
+      {kind === 'expense' && (
+        <div className="form-row">
+          <FormField label="Category" type="select" value={form.category || ''} onChange={(e) => set({ category: e.target.value })}>
+            <option value="" disabled>Select…</option>
+            {catList.map((c) => <option key={c} value={c}>{c}</option>)}
+          </FormField>
+          <FormField label="Merchant (optional)" value={form.merchant || ''} onChange={(e) => set({ merchant: e.target.value })} />
         </div>
+      )}
+
+      <div className="form-row">
+        <FormField label="Date" type="date" value={form.date || ''} onChange={(e) => set({ date: e.target.value })} />
+        <FormField label="Notes (optional)" value={form.notes || ''} onChange={(e) => set({ notes: e.target.value })} />
       </div>
-    </div>
+
+      {err && <span className="field-error">{err}</span>}
+
+      <div className="modal-actions">
+        <button className="btn-ghost" onClick={onClose}>Cancel</button>
+        <button className="btn-primary" onClick={submit}>Save</button>
+      </div>
+    </Modal>
   )
 }
 
@@ -212,13 +185,10 @@ function GoalContributionModal({ onClose, onCompleted }) {
 
   if (goals.length === 0) {
     return (
-      <div className="modal-overlay open" onClick={(e) => e.target === e.currentTarget && onClose()}>
-        <div className="modal-card">
-          <div className="modal-head"><h3>Add to Goal</h3><button className="modal-close" onClick={onClose}><X size={14} /></button></div>
-          <p className="spending-total" style={{ marginBottom: 16 }}>You don't have any savings goals yet. Create one to start contributing.</p>
-          <Link to="/goals" className="btn-primary" style={{ display: 'inline-flex' }} onClick={onClose}>+ Create Goal</Link>
-        </div>
-      </div>
+      <Modal open onClose={onClose} title="Add to Goal">
+        <p className="spending-total" style={{ marginBottom: 16 }}>You don't have any savings goals yet. Create one to start contributing.</p>
+        <Link to="/goals" className="btn-primary" style={{ display: 'inline-flex' }} onClick={onClose}>+ Create Goal</Link>
+      </Modal>
     )
   }
 
@@ -248,49 +218,33 @@ function GoalContributionModal({ onClose, onCompleted }) {
   const selectedAccount = accounts.find((a) => a.id === form.account_id)
 
   return (
-    <div className="modal-overlay open" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal-card">
-        <div className="modal-head"><h3>Add to Goal</h3><button className="modal-close" onClick={onClose}><X size={14} /></button></div>
+    <Modal open onClose={onClose} title="Add to Goal">
+      <FormField label="From Wallet" type="select" value={form.account_id} onChange={(e) => set({ account_id: e.target.value })}>
+        {accounts.map((a) => <option key={a.id} value={a.id}>{a.name} ({fmt(a.balance)})</option>)}
+      </FormField>
 
+      <FormField label="Savings Goal" type="select" value={form.goal_id} onChange={(e) => set({ goal_id: e.target.value })}>
+        {goals.map((g) => <option key={g.id} value={g.id}>{g.name} ({fmt(g.saved_amount)} / {fmt(g.target_amount)})</option>)}
+      </FormField>
+
+      <div className="form-row">
         <div className="form-group">
-          <label className="form-label">From Wallet</label>
-          <select className="form-select" value={form.account_id} onChange={(e) => set({ account_id: e.target.value })}>
-            {accounts.map((a) => <option key={a.id} value={a.id}>{a.name} ({fmt(a.balance)})</option>)}
-          </select>
+          <label className="form-label">Amount</label>
+          <input className="form-input" type="number" min="0.01" step="0.01" value={form.amount || ''} onChange={(e) => set({ amount: e.target.value })} />
+          {selectedAccount && <span style={{ fontSize: 11, color: 'var(--muted)' }}>Available: {fmt(selectedAccount.balance)}</span>}
         </div>
-
-        <div className="form-group">
-          <label className="form-label">Savings Goal</label>
-          <select className="form-select" value={form.goal_id} onChange={(e) => set({ goal_id: e.target.value })}>
-            {goals.map((g) => <option key={g.id} value={g.id}>{g.name} ({fmt(g.saved_amount)} / {fmt(g.target_amount)})</option>)}
-          </select>
-        </div>
-
-        <div className="form-row">
-          <div className="form-group">
-            <label className="form-label">Amount</label>
-            <input className="form-input" type="number" min="0.01" step="0.01" value={form.amount || ''} onChange={(e) => set({ amount: e.target.value })} />
-            {selectedAccount && <span style={{ fontSize: 11, color: 'var(--muted)' }}>Available: {fmt(selectedAccount.balance)}</span>}
-          </div>
-          <div className="form-group">
-            <label className="form-label">Date</label>
-            <input className="form-input" type="date" value={form.date || ''} onChange={(e) => set({ date: e.target.value })} />
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">Note (optional)</label>
-          <input className="form-input" value={form.note || ''} onChange={(e) => set({ note: e.target.value })} />
-        </div>
-
-        {err && <span className="field-error">{err}</span>}
-
-        <div className="modal-actions">
-          <button className="btn-ghost" onClick={onClose} disabled={busy}>Cancel</button>
-          <button className="btn-primary" onClick={submit} disabled={busy}>{busy ? 'Processing…' : 'Contribute'}</button>
-        </div>
+        <FormField label="Date" type="date" value={form.date || ''} onChange={(e) => set({ date: e.target.value })} />
       </div>
-    </div>
+
+      <FormField label="Note (optional)" value={form.note || ''} onChange={(e) => set({ note: e.target.value })} />
+
+      {err && <span className="field-error">{err}</span>}
+
+      <div className="modal-actions">
+        <button className="btn-ghost" onClick={onClose} disabled={busy}>Cancel</button>
+        <button className="btn-primary" onClick={submit} disabled={busy}>{busy ? 'Processing…' : 'Contribute'}</button>
+      </div>
+    </Modal>
   )
 }
 
@@ -449,8 +403,8 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="finai-page">
-        <div className="stat-row">{[1, 2, 3, 4].map((i) => <div key={i} className="card skeleton" style={{ height: 100 }} />)}</div>
-        <div className="card skeleton" style={{ height: 260, marginTop: 18 }} />
+        <div className="stat-row">{[1, 2, 3, 4].map((i) => <SkeletonCard key={i} rows={2} />)}</div>
+        <SkeletonCard rows={4} />
       </div>
     )
   }
@@ -468,59 +422,61 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <div className="topbar">
-        <div className="greeting">
-          <div className="avatar">{name[0]?.toUpperCase()}</div>
-          <div><h1>Welcome, {name} 👋</h1><p>Here's your financial overview for today</p></div>
-        </div>
-        <div className="topbar-actions">
-          <select className="filter-select" value={period} onChange={(e) => setPeriod(e.target.value)}>
-            {PERIODS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
-          </select>
+      <PageHeader
+        showAvatar
+        avatarName={name}
+        title={`Welcome, ${name} 👋`}
+        subtitle="Here's your financial overview for today"
+        actions={
+          <>
+            <select className="filter-select" value={period} onChange={(e) => setPeriod(e.target.value)}>
+              {PERIODS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+            </select>
 
-          <div ref={searchRef} style={{ position: 'relative' }}>
-            <button className="icon-btn" onClick={() => { setSearchOpen((o) => !o); setNotifOpen(false) }}><Search size={17} /></button>
-            {searchOpen && (
-              <div className="modal-card" style={{ position: 'absolute', right: 0, top: 48, width: 280, padding: 14, zIndex: 70 }}>
-                <input
-                  className="form-input"
-                  placeholder="Search transactions…"
-                  autoFocus
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  style={{ marginBottom: searchQuery ? 10 : 0 }}
-                />
-                {searchQuery && (
+            <div ref={searchRef} style={{ position: 'relative' }}>
+              <button className="icon-btn" onClick={() => { setSearchOpen((o) => !o); setNotifOpen(false) }}><Search size={17} /></button>
+              {searchOpen && (
+                <div className="modal-card" style={{ position: 'absolute', right: 0, top: 48, width: 280, padding: 14, zIndex: 70 }}>
+                  <input
+                    className="form-input"
+                    placeholder="Search transactions…"
+                    autoFocus
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    style={{ marginBottom: searchQuery ? 10 : 0 }}
+                  />
+                  {searchQuery && (
+                    <div className="rt-list">
+                      {searchResults.length === 0 && <p className="spending-total">No matches.</p>}
+                      {searchResults.map((t) => (
+                        <Link to="/transactions" key={t.id} className="rt-row" style={{ textDecoration: 'none', color: 'inherit' }} onClick={() => setSearchOpen(false)}>
+                          <div className="rt-info"><div className="rt-name">{t.merchant}</div><div className="rt-date">{new Date(t.date).toLocaleDateString()} · {t.category}</div></div>
+                          <div className={`rt-amt ${t.type === 'income' ? 'pos' : 'neg'}`}>{t.type === 'income' ? '+' : '-'}{fmt(t.amount)}</div>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div ref={notifRef} style={{ position: 'relative' }}>
+              <button className="icon-btn" onClick={() => { setNotifOpen((o) => !o); setSearchOpen(false) }}><Bell size={17} /></button>
+              {notifOpen && (
+                <div className="modal-card" style={{ position: 'absolute', right: 0, top: 48, width: 280, padding: 14, zIndex: 70 }}>
                   <div className="rt-list">
-                    {searchResults.length === 0 && <p className="spending-total">No matches.</p>}
-                    {searchResults.map((t) => (
-                      <Link to="/transactions" key={t.id} className="rt-row" style={{ textDecoration: 'none', color: 'inherit' }} onClick={() => setSearchOpen(false)}>
-                        <div className="rt-info"><div className="rt-name">{t.merchant}</div><div className="rt-date">{new Date(t.date).toLocaleDateString()} · {t.category}</div></div>
-                        <div className={`rt-amt ${t.type === 'income' ? 'pos' : 'neg'}`}>{t.type === 'income' ? '+' : '-'}{fmt(t.amount)}</div>
-                      </Link>
+                    {notifications.map((n) => (
+                      <div className="rt-row" key={n.id}>
+                        <div className="rt-info"><div className="rt-name" style={{ color: n.tone === 'warn' ? 'var(--red)' : undefined }}>{n.text}</div></div>
+                      </div>
                     ))}
                   </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <div ref={notifRef} style={{ position: 'relative' }}>
-            <button className="icon-btn" onClick={() => { setNotifOpen((o) => !o); setSearchOpen(false) }}><Bell size={17} /></button>
-            {notifOpen && (
-              <div className="modal-card" style={{ position: 'absolute', right: 0, top: 48, width: 280, padding: 14, zIndex: 70 }}>
-                <div className="rt-list">
-                  {notifications.map((n) => (
-                    <div className="rt-row" key={n.id}>
-                      <div className="rt-info"><div className="rt-name" style={{ color: n.tone === 'warn' ? 'var(--red)' : undefined }}>{n.text}</div></div>
-                    </div>
-                  ))}
                 </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+              )}
+            </div>
+          </>
+        }
+      />
 
       {accounts.length === 0 && (
         <div className="card" style={{ marginBottom: 18, fontSize: 12.5, color: 'var(--muted)' }}>

@@ -1,0 +1,59 @@
+/*
+ * Shared design tokens for the FinAI green fintech theme.
+ *
+ * Consolidated from the (previously duplicated) :root blocks in:
+ *   pages/dashboard/finai/dashboard.css, pages/goals/finai/goals.css,
+ *   pages/wallet/finai/wallet.css, pages/settings/finai/settings.css,
+ *   pages/transactions/finai/transactions.css, pages/budgets/finai/budget.css,
+ *   pages/analytics/finai/analytics.css
+ *
+ * budget.css and transactions.css were each missing a subset of variables
+ * (--dark-card/--dark-card-2/--green-deep/--cat-*, and --amber/--green-pale
+ * respectively) — those are included here since other pages rely on them.
+ * Every value below was identical across every file that defined it, so no
+ * value conflicts needed to be resolved, only the missing-variable gaps.
+ *
+ * Import this once, globally, before any other CSS (see main.jsx).
+ */
+
+:root {
+  /* Surfaces */
+  --bg: #eef1ec;
+  --sidebar-bg: #ffffff;
+  --card-bg: #ffffff;
+  --dark-card: #0e2018;
+  --dark-card-2: #0b1f16;
+
+  /* Text */
+  --ink: #12251c;
+  --muted: #7c8a82;
+  --muted-2: #9aa79f;
+  --border: #e4e9e3;
+
+  /* Brand green */
+  --green: #22c55e;
+  --green-dark: #16a34a;
+  --green-deep: #0f3d24;
+  --green-pale: #d9f2e2;
+
+  /* Status */
+  --red: #ef4444;
+  --red-pale: #fde3e2;
+  --amber: #f59e0b;
+
+  /* Category chart colors (dashboard / analytics) */
+  --cat-food: #14532d;
+  --cat-transport: #6b7280;
+  --cat-shopping: #4ade80;
+  --cat-bills: #052e16;
+  --cat-entertainment: #a7d9b6;
+  --cat-others: #d9dfd6;
+
+  /* Radii */
+  --radius-lg: 22px;
+  --radius-md: 16px;
+  --radius-sm: 10px;
+
+  /* Shadows */
+  --shadow-card: 0 1px 2px rgba(18, 37, 28, 0.04), 0 8px 24px rgba(18, 37, 28, 0.04);
+}

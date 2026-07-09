@@ -1,12 +1,19 @@
 import { useMemo, useState } from 'react'
 import {
-  Plus, X, MoreVertical, TrendingUp, TrendingDown, AlertTriangle,
+  Plus, MoreVertical, AlertTriangle,
   UtensilsCrossed, Car, ShoppingBag, Receipt, Film, Wallet2, Tag, HouseHeart, ShoppingCart
 } from 'lucide-react'
 import { useFinance } from '@/context/FinanceContext'
+import { formatCurrency } from '@/lib/format'
+import PageHeader from '@/components/ui/PageHeader'
+import StatRow from '@/components/ui/StatRow'
+import StatCard from '@/components/ui/StatCard'
+import Modal from '@/components/ui/Modal'
+import FormField from '@/components/ui/FormField'
+import Badge from '@/components/ui/Badge'
+import DropdownMenu, { DropdownMenuItem } from '@/components/ui/DropdownMenu'
 import './finai/budget.css'
 
-const fmt = (n) => '$' + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 const CAT_COLORS = ['#14532d', '#6b7280', '#4ade80', '#052e16', '#a7d9b6', '#6366f1', '#f59e0b', '#dc2626']
 const CAT_ICONS = {
   'Dining Out': UtensilsCrossed, Food: UtensilsCrossed, Groceries: ShoppingBag,
@@ -48,7 +55,7 @@ const SORTS = [
   { id: 'alpha', label: 'Alphabetical' },
 ]
 
-function BudgetForm({ initial, categories, accounts, onCancel, onSave }) {
+function BudgetForm({ open, initial, categories, accounts, onCancel, onSave }) {
   const [form, setForm] = useState(initial || {
     category: categories[0] || '', limit_amount: '', period: 'monthly',
     wallet_id: '', start_date: new Date().toISOString().slice(0, 10), end_date: '', notes: '',
@@ -71,64 +78,62 @@ function BudgetForm({ initial, categories, accounts, onCancel, onSave }) {
   }
 
   return (
-    <div className="modal-overlay open" onClick={(e) => e.target === e.currentTarget && onCancel()}>
-      <div className="modal-card">
-        <div className="modal-head"><h3>{initial ? 'Edit Budget' : 'Create Budget'}</h3><button className="modal-close" onClick={onCancel}><X size={14} /></button></div>
+    <Modal open={open} onClose={onCancel} title={initial ? 'Edit Budget' : 'Create Budget'}>
+      <FormField
+        label="Category"
+        type="select"
+        value={form.category}
+        onChange={(e) => set({ category: e.target.value })}
+        options={categories}
+      />
 
-        <div className="form-group">
-          <label className="form-label">Category</label>
-          <select className="form-select" value={form.category} onChange={(e) => set({ category: e.target.value })}>
-            {categories.map((c) => <option key={c} value={c}>{c}</option>)}
-          </select>
-        </div>
-
-        <div className="form-row">
-          <div className="form-group">
-            <label className="form-label">Budget Amount</label>
-            <input className="form-input" type="number" min="0.01" step="0.01" value={form.limit_amount} onChange={(e) => set({ limit_amount: e.target.value })} />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Period</label>
-            <select className="form-select" value={form.period} onChange={(e) => set({ period: e.target.value })}>
-              <option value="monthly">Monthly</option>
-              <option value="weekly">Weekly</option>
-              <option value="yearly">Yearly</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="form-row">
-          <div className="form-group">
-            <label className="form-label">Start Date</label>
-            <input className="form-input" type="date" value={form.start_date} onChange={(e) => set({ start_date: e.target.value })} />
-          </div>
-          <div className="form-group">
-            <label className="form-label">End Date (optional)</label>
-            <input className="form-input" type="date" value={form.end_date} onChange={(e) => set({ end_date: e.target.value })} />
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">Wallet (optional)</label>
-          <select className="form-select" value={form.wallet_id} onChange={(e) => set({ wallet_id: e.target.value })}>
-            <option value="">All Wallets</option>
-            {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
-          </select>
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">Notes</label>
-          <input className="form-input" value={form.notes} onChange={(e) => set({ notes: e.target.value })} placeholder="Optional" />
-        </div>
-
-        {err && <span className="field-error">{err}</span>}
-
-        <div className="modal-actions">
-          <button className="btn-ghost" onClick={onCancel}>Cancel</button>
-          <button className="btn-primary" onClick={submit}>{initial ? 'Save Changes' : 'Create Budget'}</button>
-        </div>
+      <div className="form-row">
+        <FormField
+          label="Budget Amount"
+          type="number"
+          min="0.01"
+          step="0.01"
+          value={form.limit_amount}
+          onChange={(e) => set({ limit_amount: e.target.value })}
+        />
+        <FormField
+          label="Period"
+          type="select"
+          value={form.period}
+          onChange={(e) => set({ period: e.target.value })}
+          options={[{ value: 'monthly', label: 'Monthly' }, { value: 'weekly', label: 'Weekly' }, { value: 'yearly', label: 'Yearly' }]}
+        />
       </div>
-    </div>
+
+      <div className="form-row">
+        <FormField label="Start Date" type="date" value={form.start_date} onChange={(e) => set({ start_date: e.target.value })} />
+        <FormField label="End Date (optional)" type="date" value={form.end_date} onChange={(e) => set({ end_date: e.target.value })} />
+      </div>
+
+      <FormField
+        label="Wallet (optional)"
+        type="select"
+        value={form.wallet_id}
+        onChange={(e) => set({ wallet_id: e.target.value })}
+      >
+        <option value="">All Wallets</option>
+        {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
+      </FormField>
+
+      <FormField
+        label="Notes"
+        value={form.notes}
+        onChange={(e) => set({ notes: e.target.value })}
+        placeholder="Optional"
+      />
+
+      {err && <span className="field-error">{err}</span>}
+
+      <div className="modal-actions">
+        <button className="btn-ghost" onClick={onCancel}>Cancel</button>
+        <button className="btn-primary" onClick={submit}>{initial ? 'Save Changes' : 'Create Budget'}</button>
+      </div>
+    </Modal>
   )
 }
 
@@ -199,9 +204,9 @@ export default function BudgetPage() {
   const alerts = useMemo(() => {
     const list = []
     rows.forEach((r) => {
-      if (r.status === 'exceeded') list.push({ id: `${r.id}-ex`, tone: 'warn', text: `${r.category} budget exceeded by ${fmt(r.spent - r.limit_amount)}.` })
+      if (r.status === 'exceeded') list.push({ id: `${r.id}-ex`, tone: 'warn', text: `${r.category} budget exceeded by ${formatCurrency(r.spent - r.limit_amount)}.` })
       else if (r.pct >= 90) list.push({ id: `${r.id}-nf`, tone: 'warn', text: `${r.category} budget is ${r.pct}% used.` })
-      else if (r.remaining > 0 && r.remaining <= r.limit_amount * 0.1 && r.spent > 0) list.push({ id: `${r.id}-lo`, tone: 'warn', text: `${r.category} budget has ${fmt(r.remaining)} remaining.` })
+      else if (r.remaining > 0 && r.remaining <= r.limit_amount * 0.1 && r.spent > 0) list.push({ id: `${r.id}-lo`, tone: 'warn', text: `${r.category} budget has ${formatCurrency(r.remaining)} remaining.` })
     })
     return list
   }, [rows])
@@ -240,15 +245,18 @@ export default function BudgetPage() {
 
   return (
     <div className="finai-page">
-      <div className="topbar">
-        <div className="greeting"><div><h1>Budget</h1><p>Manage and monitor your spending limits</p></div></div>
-        <div className="topbar-actions">
-          <select className="filter-select" value={periodTab} onChange={(e) => setPeriodTab(e.target.value)}>
-            {PERIOD_TABS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
-          </select>
-          <button className="btn-primary" onClick={() => setModal('create')}><Plus size={15} /> Create Budget</button>
-        </div>
-      </div>
+      <PageHeader
+        title="Budget"
+        subtitle="Manage and monitor your spending limits"
+        actions={
+          <>
+            <select className="filter-select" value={periodTab} onChange={(e) => setPeriodTab(e.target.value)}>
+              {PERIOD_TABS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+            </select>
+            <button className="btn-primary" onClick={() => setModal('create')}><Plus size={15} /> Create Budget</button>
+          </>
+        }
+      />
 
       {periodTab === 'custom' && (
         <div className="custom-range-row">
@@ -266,12 +274,12 @@ export default function BudgetPage() {
         </div>
       ) : (
         <>
-          <div className="stat-row">
-            <div className="card stat-card"><span className="stat-label">Total Budget</span><div className="stat-amount">{fmt(totals.totalBudget)}</div></div>
-            <div className="card stat-card"><span className="stat-label">Spent</span><div className="stat-amount">{fmt(totals.totalSpent)}</div></div>
-            <div className="card stat-card"><span className="stat-label">Remaining</span><div className="stat-amount" style={{ color: totals.remaining < 0 ? 'var(--red)' : undefined }}>{fmt(totals.remaining)}</div></div>
-            <div className="card stat-card"><span className="stat-label">Over Budget</span><div className="stat-amount" style={{ color: totals.overCount > 0 ? 'var(--red)' : undefined }}>{totals.overCount} {totals.overCount === 1 ? 'Category' : 'Categories'}</div></div>
-          </div>
+          <StatRow>
+            <StatCard label="Total Budget" value={formatCurrency(totals.totalBudget)} />
+            <StatCard label="Spent" value={formatCurrency(totals.totalSpent)} />
+            <StatCard label="Remaining" value={<span style={{ color: totals.remaining < 0 ? 'var(--red)' : undefined }}>{formatCurrency(totals.remaining)}</span>} />
+            <StatCard label="Over Budget" value={<span style={{ color: totals.overCount > 0 ? 'var(--red)' : undefined }}>{totals.overCount} {totals.overCount === 1 ? 'Category' : 'Categories'}</span>} />
+          </StatRow>
 
           {alerts.length > 0 && (
             <div className="card alerts-card">
@@ -310,27 +318,28 @@ export default function BudgetPage() {
                 {sorted.map((b) => {
                   const Icon = catIcon(b.category)
                   const pctClamped = Math.min(100, Math.max(0, b.pct))
+                  const displayStatus = b.budgetStatus === 'paused' ? 'paused' : b.status
                   return (
                     <div className="budget-card" key={b.id}>
                       <div className="budget-head">
                         <div className="budget-icon"><Icon size={16} /></div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div className="budget-name">{b.category}</div>
-                          <div className="budget-sub">{fmt(b.spent)} of {fmt(b.limit_amount)}{b.wallet_id ? ` · ${accounts.find((a) => a.id === b.wallet_id)?.name || ''}` : ''}</div>
+                          <div className="budget-sub">{formatCurrency(b.spent)} of {formatCurrency(b.limit_amount)}{b.wallet_id ? ` · ${accounts.find((a) => a.id === b.wallet_id)?.name || ''}` : ''}</div>
                         </div>
-                        <div className="goal-menu-wrap">
-                          <button className="goal-menu-btn" onClick={() => setOpenMenu(openMenu === b.id ? null : b.id)}><MoreVertical size={15} /></button>
-                          {openMenu === b.id && (
-                            <>
-                              <div className="goal-menu-backdrop" onClick={() => setOpenMenu(null)} />
-                              <div className="goal-menu">
-                                <button onClick={() => { setModal(b); setOpenMenu(null) }}>Edit</button>
-                                <button onClick={() => handlePause(b)}>{b.budgetStatus === 'paused' ? 'Resume' : 'Pause'}</button>
-                                <button className="danger" onClick={() => handleDelete(b)}>Delete</button>
-                              </div>
-                            </>
-                          )}
-                        </div>
+                        <DropdownMenu
+                          open={openMenu === b.id}
+                          onClose={() => setOpenMenu(null)}
+                          trigger={
+                            <button type="button" className="goal-menu-btn" aria-label="Budget actions" onClick={() => setOpenMenu(openMenu === b.id ? null : b.id)}>
+                              <MoreVertical size={15} />
+                            </button>
+                          }
+                        >
+                          <DropdownMenuItem onClick={() => { setModal(b); setOpenMenu(null) }}>Edit</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handlePause(b)}>{b.budgetStatus === 'paused' ? 'Resume' : 'Pause'}</DropdownMenuItem>
+                          <DropdownMenuItem danger onClick={() => handleDelete(b)}>Delete</DropdownMenuItem>
+                        </DropdownMenu>
                       </div>
 
                       <div className="progress-track">
@@ -341,9 +350,9 @@ export default function BudgetPage() {
                         <span className="budget-pct">{b.pct}%</span>
                         <div className="budget-remaining">
                           <span className="label">Remaining</span>
-                          <span className={b.remaining < 0 ? 'neg' : ''}>{fmt(b.remaining)}</span>
+                          <span className={b.remaining < 0 ? 'neg' : ''}>{formatCurrency(b.remaining)}</span>
                         </div>
-                        <span className={`badge badge-${b.budgetStatus === 'paused' ? 'paused' : b.status}`}>{STATUS_LABEL[b.budgetStatus === 'paused' ? 'paused' : b.status]}</span>
+                        <Badge status={displayStatus}>{STATUS_LABEL[displayStatus]}</Badge>
                       </div>
                     </div>
                   )
@@ -363,7 +372,7 @@ export default function BudgetPage() {
                     <div className="legend-row" key={d.name} style={{ cursor: 'default' }}>
                       <span className="legend-dot" style={{ background: CAT_COLORS[i % CAT_COLORS.length] }} />
                       <span className="legend-name">{d.name}</span>
-                      <span className="legend-amount">{fmt(d.value)}</span>
+                      <span className="legend-amount">{formatCurrency(d.value)}</span>
                       <span className="legend-pct">{d.pct}%</span>
                     </div>
                   ))}
@@ -381,7 +390,7 @@ export default function BudgetPage() {
                     <div className="history-row" key={h.label}>
                       <span className="history-month">{h.label}</span>
                       <span className="history-pct">{h.pct}%</span>
-                      <span className={`badge badge-${h.status === 'Exceeded' ? 'exceeded' : h.status === 'Current' ? 'on_track' : 'no_spend'}`}>{h.status}</span>
+                      <Badge status={h.status === 'Exceeded' ? 'exceeded' : h.status === 'Current' ? 'on_track' : 'no_spend'}>{h.status}</Badge>
                     </div>
                   ))}
                 </div>
@@ -393,6 +402,7 @@ export default function BudgetPage() {
 
       {modal && (
         <BudgetForm
+          open={!!modal}
           initial={modal !== 'create' ? modal : null}
           categories={categoryOptions}
           accounts={accounts}

@@ -1,6 +1,9 @@
 import { useMemo, useState, useRef } from 'react'
 import { ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, RefreshCw, Download, AlertTriangle, PiggyBank, Tag, CalendarClock, Wallet2 } from 'lucide-react'
 import { useFinance } from '@/context/FinanceContext'
+import { formatCurrency } from '@/lib/format'
+import PageHeader from '@/components/ui/PageHeader'
+import SkeletonCard from '@/components/ui/SkeletonCard'
 import './finai/analytics.css'
 
 const CAT_PALETTE = ['#14532d', '#6b7280', '#4ade80', '#052e16', '#a7d9b6', '#6366f1', '#f59e0b', '#dc2626']
@@ -29,7 +32,7 @@ function downloadCsv(filename, csv) {
   URL.revokeObjectURL(url)
 }
 
-const fmt = (n) => '$' + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+const fmt = (n) => formatCurrency(n || 0)
 const fmtAxis = (n) => {
   const v = Number(n || 0)
   const sign = v < 0 ? '-' : ''
@@ -384,11 +387,11 @@ export default function AnalyticsPage() {
   if (loading) {
     return (
       <div className="finai-page">
-        <div className="topbar"><div className="greeting"><div><h1>Analytics</h1><p>Your financial trends, in depth</p></div></div></div>
-        <div className="stat-row">{[1, 2, 3, 4].map((i) => <div key={i} className="card skeleton" style={{ height: 108 }} />)}</div>
+        <PageHeader title="Analytics" subtitle="Your financial trends, in depth" />
+        <div className="stat-row">{[1, 2, 3, 4].map((i) => <SkeletonCard key={i} rows={2} />)}</div>
         <div className="analytics-stack">
-          <div className="card skeleton" style={{ height: 300, marginTop: 18 }} />
-          <div className="card skeleton" style={{ height: 300 }} />
+          <SkeletonCard rows={4} />
+          <SkeletonCard rows={4} />
         </div>
       </div>
     )
@@ -396,17 +399,20 @@ export default function AnalyticsPage() {
 
   return (
     <div className="finai-page">
-      <div className="topbar">
-        <div className="greeting"><div><h1>Analytics</h1><p>Your financial trends, in depth</p></div></div>
-        <div className="topbar-actions">
-          <button className="icon-btn" onClick={handleRefresh} title="Refresh data" aria-label="Refresh data">
-            <RefreshCw size={16} style={refreshing ? { animation: 'spin 0.6s linear infinite' } : undefined} />
-          </button>
-          <button className="btn-primary" onClick={handleExport} disabled={scopedTx.length === 0}>
-            <Download size={14} /> <span className="btn-label">Export CSV</span>
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="Analytics"
+        subtitle="Your financial trends, in depth"
+        actions={
+          <>
+            <button className="icon-btn" onClick={handleRefresh} title="Refresh data" aria-label="Refresh data">
+              <RefreshCw size={16} style={refreshing ? { animation: 'spin 0.6s linear infinite' } : undefined} />
+            </button>
+            <button className="btn-primary" onClick={handleExport} disabled={scopedTx.length === 0}>
+              <Download size={14} /> <span className="btn-label">Export CSV</span>
+            </button>
+          </>
+        }
+      />
 
       {error && <div className="error-banner"><AlertTriangle size={15} /> {error} — showing last known data.</div>}
 

@@ -1,0 +1,159 @@
+/*
+ * CSS "owned" by the shared components in src/components/ui/.
+ *
+ * This is what Phase 2 step 4 refers to when it says a page's local
+ * `.modal-*`, `.stat-*`, `.badge*`, `.btn-primary`/`.btn-ghost`, and
+ * `.form-input`/`.form-select` rules are "now owned by the shared
+ * components" — those rules live here once, instead of once per page.
+ *
+ * Extracted from (values were identical everywhere they appeared, aside
+ * from cosmetic whitespace/line-wrapping):
+ *   transactions.css, goals.css, budget.css, settings.css, dashboard.css
+ *
+ * NOT included here (deliberately left page-owned, since no Phase 1
+ * component wraps them): .segmented, .form-row, .filters/.filter-select,
+ * page-specific card variants (e.g. .balance-card internals).
+ *
+ * NOT included here (already global via layouts/finai-sidebar.css, loaded
+ * by AppLayout for every page): .sidebar, .finai-app, .finai-main,
+ * .nav-item, .brand, .avatar (base 44px size).
+ *
+ * Import this once, globally, in main.jsx — after tokens.css.
+ */
+
+/* Buttons */
+.btn-primary {
+  display: flex; align-items: center; gap: 7px;
+  background: var(--green-dark); color: #fff; border: none;
+  font-weight: 700; font-size: 13px; padding: 10px 16px;
+  border-radius: 10px; cursor: pointer;
+}
+.btn-primary:hover { background: #12933f; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-ghost {
+  flex: 1; background: #fff; border: 1px solid var(--border); color: #4b5a51;
+  font-weight: 600; font-size: 13px; padding: 10px; border-radius: 10px; cursor: pointer;
+}
+.btn-ghost:hover { background: #f5f7f4; }
+.btn-danger-solid {
+  flex: 1; background: var(--red); color: #fff; border: none;
+  font-weight: 700; font-size: 13px; padding: 10px; border-radius: 10px; cursor: pointer;
+}
+.btn-danger-solid:hover { background: #dc2626; }
+.icon-btn {
+  width: 40px; height: 40px; border-radius: 50%; background: #fff; border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center; color: #37473d; cursor: pointer;
+}
+.icon-btn:hover { background: #f5f7f4; }
+
+/* Card */
+.card {
+  background: var(--card-bg); border-radius: var(--radius-lg); border: 1px solid var(--border);
+  box-shadow: var(--shadow-card); padding: 18px 20px;
+}
+
+/* PageHeader (topbar / greeting / topbar-actions) */
+.topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; flex-wrap: wrap; row-gap: 12px; }
+.greeting { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.greeting h1 { font-size: 16px; margin: 0; font-weight: 700; display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.greeting p { font-size: 12.5px; margin: 2px 0 0 0; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.topbar-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+/* Avatar (large variant only — base 44px .avatar is already global via finai-sidebar.css) */
+.avatar-lg {
+  width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--green), var(--green-dark)) center/cover;
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 17px; background-size: cover; background-position: center;
+}
+
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(14,32,24,0.35); display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+.modal-overlay.open { display: flex; }
+.modal-card { background: #fff; border-radius: var(--radius-lg); padding: 22px; width: 100%; max-width: 400px; box-shadow: 0 20px 50px rgba(18,37,28,0.25); }
+.modal-card-sm { max-width: 340px; }
+.modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.modal-head h3 { font-size: 15px; margin: 0; font-weight: 700; }
+.modal-close { width: 26px; height: 26px; border-radius: 8px; border: 1px solid var(--border); background: #fff; cursor: pointer; color: #5b6a61; display: flex; align-items: center; justify-content: center; }
+.modal-actions { display: flex; gap: 10px; margin-top: 6px; }
+.modal-actions .btn-primary { flex: 1; justify-content: center; }
+
+/* FormField */
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; display: block; }
+.form-input, .form-select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; color: var(--ink); background: #fff; }
+.form-input:focus, .form-select:focus { outline: none; border-color: var(--green-dark); }
+.field-error { display: block; font-size: 11px; color: var(--red); margin-top: 4px; }
+
+/* Badge */
+.badge { font-size: 10.5px; font-weight: 700; padding: 4px 9px; border-radius: 20px; letter-spacing: 0.02em; white-space: nowrap; }
+.badge-success { background: var(--green-pale); color: var(--green-dark); }
+.badge-failed { background: var(--red-pale); color: var(--red); }
+.badge-warning { background: #fef3c7; color: #b45309; }
+.badge-on_track { background: var(--green-pale); color: var(--green-dark); }
+.badge-nearly_full { background: #fef3c7; color: #b45309; }
+.badge-exceeded { background: var(--red-pale); color: var(--red); }
+.badge-no_spend { background: #e4e9e3; color: #5b6a61; }
+.badge-paused { background: #e4e9e3; color: #5b6a61; }
+
+/* StatRow / StatCard */
+.stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 18px; }
+.stat-card { display: flex; flex-direction: column; gap: 10px; }
+.stat-top { display: flex; align-items: center; gap: 8px; }
+.stat-icon { width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+.stat-icon.income { background: #dcfce7; color: #16a34a; }
+.stat-icon.expense { background: #fde3e2; color: #ef4444; }
+.stat-icon.savings { background: var(--green-pale); color: var(--green-dark); }
+.stat-icon.net { background: #e4e9e3; color: #37473d; }
+.stat-label { font-size: 12px; color: var(--muted); font-weight: 600; }
+.stat-amount { font-size: 19px; font-weight: 700; }
+
+/* DropdownMenu */
+.goal-menu-wrap { position: relative; flex-shrink: 0; }
+.goal-menu-btn {
+  width: 28px; height: 28px; border-radius: 8px; border: 1px solid transparent; background: transparent;
+  color: #5b6a61; font-size: 16px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.goal-menu-btn:hover { background: #f2f5f0; border-color: var(--border); }
+.goal-menu-backdrop { position: fixed; inset: 0; z-index: 10; }
+.goal-menu {
+  position: absolute; top: 32px; right: 0; z-index: 20; background: #fff; border: 1px solid var(--border);
+  border-radius: 12px; box-shadow: 0 12px 30px rgba(18,37,28,0.14); padding: 6px; display: flex;
+  flex-direction: column; min-width: 140px;
+}
+.goal-menu.align-up { top: auto; bottom: 32px; }
+.goal-menu button { text-align: left; background: none; border: none; padding: 9px 10px; border-radius: 8px; font-size: 12.5px; font-weight: 600; color: var(--ink); cursor: pointer; white-space: nowrap; }
+.goal-menu button:hover { background: #f2f5f0; }
+.goal-menu button.danger { color: var(--red); }
+.goal-menu button.danger:hover { background: var(--red-pale); }
+
+/* Trend chip (Analytics + Dashboard stat cards) */
+.trend-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 600; padding: 5px 9px; border-radius: 20px; margin-top: 14px; width: fit-content; }
+.trend-up { background: rgba(34,197,94,0.18); color: #7fe3a5; }
+.trend-down { background: rgba(239,68,68,0.18); color: #fca5a5; }
+.trend-up.on-light { background: var(--green-pale); color: #15803d; }
+.trend-down.on-light { background: var(--red-pale); color: #dc2626; }
+.trend-note { font-size: 11px; color: #8fa79a; margin-left: 6px; font-weight: 500; }
+.trend-note.on-light { color: var(--muted); }
+
+/* Error banner (Analytics + Dashboard) */
+.error-banner { display: flex; align-items: center; gap: 8px; background: #fde3e2; color: #b91c1c; padding: 10px 14px; border-radius: 10px; font-size: 12.5px; margin-bottom: 14px; }
+
+/* Chart tooltip (Analytics + Dashboard) */
+.chart-tooltip {
+  position: absolute; pointer-events: none; background: var(--dark-card);
+  color: #eefbf3; font-size: 11.5px; padding: 8px 11px; border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(18,37,28,0.22); white-space: nowrap;
+  transform: translate(-50%, calc(-100% - 12px)); opacity: 0; transition: opacity .12s ease;
+  z-index: 5; line-height: 1.5;
+}
+.chart-tooltip.visible { opacity: 1; }
+.chart-tooltip .tt-row { display: flex; align-items: center; gap: 6px; }
+.chart-tooltip .tt-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.chart-tooltip .tt-label { color: #a9c3b3; }
+.chart-tooltip .tt-val { font-weight: 700; }
+.chart-tooltip .tt-date { color: #8fa79a; font-size: 10.5px; margin-bottom: 3px; }
+
+@media (max-width: 1080px) {
+  .stat-row { grid-template-columns: 1fr 1fr; }
+}
