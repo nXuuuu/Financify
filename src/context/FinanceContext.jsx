@@ -64,6 +64,17 @@ export function FinanceProvider({ children }) {
     return { data, error }
   }
 
+  const updateAccount = async (id, patch) => {
+    const { data, error } = await supabase
+      .from('accounts')
+      .update(patch)
+      .eq('id', id)
+      .select()
+      .single()
+    if (!error) setAccounts((prev) => prev.map((a) => (a.id === id ? data : a)))
+    return { data, error }
+  }
+
   const deleteAccount = async (id) => {
     const { error } = await supabase.from('accounts').delete().eq('id', id)
     if (!error) setAccounts((prev) => prev.filter((a) => a.id !== id))
@@ -288,6 +299,7 @@ const addBudget = async (input) => {
     error,
     refresh,
     addAccount,
+    updateAccount,
     deleteAccount,
     addTransaction,
     deleteTransaction,

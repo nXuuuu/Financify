@@ -103,8 +103,8 @@
 .stat-icon { width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
 .stat-icon.income { background: #dcfce7; color: #16a34a; }
 .stat-icon.expense { background: #fde3e2; color: #ef4444; }
-.stat-icon.savings { background: var(--green-pale); color: var(--green-dark); }
-.stat-icon.net { background: #e4e9e3; color: #37473d; }
+.stat-icon.net-income { background: var(--green-pale); color: var(--green-dark); }
+.stat-icon.net { background: #dcfce7; color: #16a34a; }
 .stat-label { font-size: 12px; color: var(--muted); font-weight: 600; }
 .stat-amount { font-size: 19px; font-weight: 700; }
 

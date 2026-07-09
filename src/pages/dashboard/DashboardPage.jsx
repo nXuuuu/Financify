@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useRef } from 'react'
-import { Search, Bell, ArrowUp, ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, Send, PlusCircle, ArrowDownToLine, CalendarClock, Coffee, AlertTriangle, X, PiggyBank, Target, Wallet2 } from 'lucide-react'
+import { Search, Bell, ChartNoAxesCombined, ArrowUp, ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, Send, PlusCircle, ArrowDownToLine, CalendarClock, Coffee, AlertTriangle, X, PiggyBank, Target, Wallet2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useFinance } from '@/context/FinanceContext'
 import { useAuth } from '@/context/AuthContext'
@@ -57,7 +57,8 @@ function sumBy(txs, type) {
 
 function pct(curr, prev) {
   if (!prev) return curr > 0 ? 100 : 0
-  return Math.round(((curr - prev) / Math.abs(prev)) * 100)
+  const pctVal = Math.round(((curr - prev) / Math.abs(prev)) * 100)
+  return Math.min(999, Math.max(-999, pctVal))
 }
 
 function Donut({ data, selected, hovered, onSlice }) {
@@ -295,17 +296,17 @@ export default function DashboardPage() {
   const monthExpense = sumBy(periodTx, 'expense')
   const prevIncome = sumBy(prevTx, 'income')
   const prevExpense = sumBy(prevTx, 'expense')
-  const savings = monthIncome - monthExpense
-  const prevSavings = prevIncome - prevExpense
+  const netIncome = monthIncome - monthExpense
+  const prevNetIncome = prevIncome - prevExpense
 
   const incomePct = pct(monthIncome, prevIncome)
   const expensePct = pct(monthExpense, prevExpense)
-  const savingsPct = pct(savings, prevSavings)
+  const netIncomePct = pct(netIncome, prevNetIncome)
 
   // Balance is a point-in-time snapshot, not a sum: compare current balance against
   // what the balance was at the end of the previous (equivalent) period — i.e.
   // the current balance minus everything that happened during the selected period.
-  const balanceDelta = useMemo(() => pct(balance, balance - savings), [balance, savings])
+  const balanceDelta = useMemo(() => pct(balance, balance - netIncome), [balance, netIncome])
   const compareLabel = PERIOD_COMPARE_LABEL[period] || 'vs previous period'
 
   const donut = useMemo(() => {
@@ -529,12 +530,12 @@ export default function DashboardPage() {
                   {Math.abs(expensePct)}% <span className="trend-note on-light">{compareLabel}</span>
                 </span>
               </div>
-              <div className="card stat-card" title={`Savings = Income (${fmt(monthIncome)}) − Expenses (${fmt(monthExpense)})`}>
-                <div className="stat-top"><span className="stat-icon savings"><PiggyBank size={14} /></span><span className="stat-label">Savings</span></div>
-                <div className="stat-amount">{fmt(savings)}</div>
-                <span className={`trend-chip on-light ${savings >= prevSavings ? 'trend-up' : 'trend-down'}`}>
-                  {savingsPct >= 0 ? <TrendingUp size={15} style={{ verticalAlign: 'middle', marginRight: 6 }} /> : <TrendingDown size={12} style={{ verticalAlign: 'middle', marginRight: 6 }} />}
-                  {Math.abs(savingsPct)}% <span className="trend-note on-light">{compareLabel}</span>
+              <div className="card stat-card" title={`Net Income = Income (${fmt(monthIncome)}) − Expenses (${fmt(monthExpense)})`}>
+                <div className="stat-top"><span className="stat-icon net-income"><ChartNoAxesCombined size={14} /></span><span className="stat-label">Net Income</span></div>
+                <div className="stat-amount">{fmt(netIncome)}</div>
+                <span className={`trend-chip on-light ${netIncomePct >= 0 ? 'trend-up' : 'trend-down'}`}>
+                  {netIncomePct >= 0 ? <TrendingUp size={15} style={{ verticalAlign: 'middle', marginRight: 6 }} /> : <TrendingDown size={12} style={{ verticalAlign: 'middle', marginRight: 6 }} />}
+                  {Math.abs(netIncomePct)}% <span className="trend-note on-light">{compareLabel}</span>
                 </span>
               </div>
             </div>

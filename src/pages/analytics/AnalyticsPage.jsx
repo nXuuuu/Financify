@@ -1,5 +1,5 @@
 import { useMemo, useState, useRef } from 'react'
-import { ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, RefreshCw, Download, AlertTriangle, PiggyBank, Tag, CalendarClock, Wallet2 } from 'lucide-react'
+import { ChartNoAxesCombined, ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, RefreshCw, Download, AlertTriangle, PiggyBank, Tag, CalendarClock, Wallet2 } from 'lucide-react'
 import { useFinance } from '@/context/FinanceContext'
 import { formatCurrency } from '@/lib/format'
 import PageHeader from '@/components/ui/PageHeader'
@@ -41,7 +41,7 @@ const fmtAxis = (n) => {
   if (abs >= 1000) return `${sign}$${(abs / 1000).toFixed(1)}k`
   return `${sign}$${Math.round(abs)}`
 }
-const pctChange = (curr, prev) => { if (!prev) return curr > 0 ? 100 : 0; return Math.round(((curr - prev) / Math.abs(prev)) * 100) }
+const pctChange = (curr, prev) => { if (!prev) return curr > 0 ? 100 : 0; const pctVal = Math.round(((curr - prev) / Math.abs(prev)) * 100); return Math.min(999, Math.max(-999, pctVal)) }
 const sumBy = (txs, type) => txs.filter((t) => t.type === type).reduce((s, t) => s + Number(t.amount), 0)
 const inRange = (dateStr, start, end) => { const d = new Date(dateStr); return d >= start && d <= end }
 const endOfDay = (d) => { const x = new Date(d); x.setHours(23, 59, 59, 999); return x }
@@ -242,7 +242,7 @@ export default function AnalyticsPage() {
   const prevTx = scopedTx.filter((t) => inRange(t.date, lastMonth.start, lastMonth.end))
   const monthIncome = sumBy(curTx, 'income'), monthExpense = sumBy(curTx, 'expense')
   const prevIncome = sumBy(prevTx, 'income'), prevExpense = sumBy(prevTx, 'expense')
-  const savings = monthIncome - monthExpense, prevSavings = prevIncome - prevExpense
+  const netIncome = monthIncome - monthExpense, prevNetIncome = prevIncome - prevExpense
 
   const balanceDelta = useMemo(() => {
     const net = curTx.reduce((s, t) => s + (t.type === 'income' ? Number(t.amount) : -Number(t.amount)), 0)
@@ -251,7 +251,7 @@ export default function AnalyticsPage() {
 
   const incomePct = pctChange(monthIncome, prevIncome)
   const expensePct = pctChange(monthExpense, prevExpense)
-  const savingsPct = pctChange(savings, prevSavings)
+  const netIncomePct = pctChange(netIncome, prevNetIncome)
 
   const buckets = useMemo(() => getBuckets(period), [period])
   const trend = useMemo(() => {
@@ -306,15 +306,15 @@ export default function AnalyticsPage() {
     }
 
     if (monthIncome > 0 && prevIncome > 0) {
-      const rate = Math.round((savings / monthIncome) * 100)
-      const prevRate = Math.round((prevSavings / prevIncome) * 100)
+      const rate = Math.round((netIncome / monthIncome) * 100)
+      const prevRate = Math.round((prevNetIncome / prevIncome) * 100)
       const diff = rate - prevRate
       if (diff !== 0) {
         list.push({
-          id: 'savings-rate',
+          id: 'net-income-rate',
           tone: diff > 0 ? 'good' : 'warn',
-          Icon: PiggyBank,
-          text: `Savings rate ${diff > 0 ? 'increased' : 'decreased'} by ${Math.abs(diff)} percentage point${Math.abs(diff) === 1 ? '' : 's'} vs last month.`,
+          Icon: ChartNoAxesCombined,
+          text: `Net income rate ${diff > 0 ? 'increased' : 'decreased'} by ${Math.abs(diff)} percentage point${Math.abs(diff) === 1 ? '' : 's'} vs last month.`,
         })
       }
     }
@@ -376,7 +376,7 @@ export default function AnalyticsPage() {
     }
 
     return list
-  }, [expensePct, prevExpense, monthIncome, prevIncome, savings, prevSavings, categoryBreakdown, scopedTx, curTx, walletFilter, accounts])
+  }, [expensePct, prevExpense, monthIncome, prevIncome, netIncome, prevNetIncome, categoryBreakdown, scopedTx, curTx, walletFilter, accounts])
 
   function handleExport() {
     const rows = [...scopedTx].sort((a, b) => new Date(b.date) - new Date(a.date))
@@ -447,11 +447,11 @@ export default function AnalyticsPage() {
           </span>
         </div>
         <div className="card stat-card">
-          <div className="stat-top"><span className="stat-icon savings"><PiggyBank size={14} /></span><span className="stat-label">Savings</span></div>
-          <div className="stat-amount">{fmt(savings)}</div>
-          <span className={`trend-chip on-light ${savings >= prevSavings ? 'trend-up' : 'trend-down'}`}>
-            {savingsPct >= 0 ? <TrendingUp size={12} style={{ verticalAlign: 'middle', marginRight: 6 }} /> : <TrendingDown size={12} style={{ verticalAlign: 'middle', marginRight: 6 }} />}
-            {Math.abs(savingsPct)}% <span className="trend-note on-light">vs last month</span>
+          <div className="stat-top"><span className="stat-icon net"><ChartNoAxesCombined size={14} /></span><span className="stat-label">Net Income</span></div>
+          <div className="stat-amount">{fmt(netIncome)}</div>
+          <span className={`trend-chip on-light ${netIncomePct >= 0 ? 'trend-up' : 'trend-down'}`}>
+            {netIncomePct >= 0 ? <TrendingUp size={12} style={{ verticalAlign: 'middle', marginRight: 6 }} /> : <TrendingDown size={12} style={{ verticalAlign: 'middle', marginRight: 6 }} />}
+            {Math.abs(netIncomePct)}% <span className="trend-note on-light">vs last month</span>
           </span>
         </div>
       </div>

@@ -1,6 +1,6 @@
 button, input, select{ font-family:inherit; }
 
-/* .card{ margin-bottom:18px; } */
+.card{ margin-bottom:18px; }
 /* .stat-row{ grid-template-columns:repeat(2,1fr); } */
 
 .section-title{ flex-wrap:wrap; gap:10px; }
@@ -35,6 +35,6 @@ button, input, select{ font-family:inherit; }
 
 .modal-overlay{ z-index:60; }
 .modal-card{ max-width:420px; max-height:85vh; overflow:auto; }
-/* .field-error{ margin:-6px 0 12px; } */
+.field-error{ margin:-6px 0 12px; }
 
 @media (max-width:700px){ .budget-grid{ grid-template-columns:1fr; } }

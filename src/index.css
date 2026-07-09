@@ -1,7 +1,20 @@
+html, body, #root {
+  height: 100%;
+}
+
 html {
   scrollbar-color: var(--muted-2) var(--bg);
   scrollbar-width: thin;
 }
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #e1f0e6;
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -17,11 +30,6 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--muted);
-}
-body {
-  background:#e1f0e6;
-  color: var(--color-text);
-  font-family: var(--font-sans);
 }
 
 .font-tabular {
@@ -40,13 +48,4 @@ body {
   bottom: -4px;
   height: 1px;
   background: var(--color-border);
-}
-
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 4px;
 }

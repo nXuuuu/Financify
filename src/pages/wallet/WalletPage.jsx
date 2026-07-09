@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { MoreVertical, Edit2, Trash2 } from 'lucide-react'
 import { useFinance } from '@/context/FinanceContext'
 import { useAuth } from '@/context/AuthContext'
 import { formatCurrency, monthKey } from '@/lib/format'
@@ -7,6 +8,7 @@ import Modal from '@/components/ui/Modal'
 import FormField from '@/components/ui/FormField'
 import StatRow from '@/components/ui/StatRow'
 import StatCard from '@/components/ui/StatCard'
+import DropdownMenu, { DropdownMenuItem } from '@/components/ui/DropdownMenu'
 import './finai/wallet.css'
 
 const ICONS = {
@@ -23,12 +25,14 @@ const STYLES = [
 ]
 
 export default function WalletPage() {
-  const { accounts, transactions, addAccount, addTransaction } = useFinance()
+  const { accounts, transactions, addAccount, addTransaction, updateAccount, deleteAccount } = useFinance()
   const { user } = useAuth()
   const name = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'there'
   const [modal, setModal] = useState(null)
   const [presetWalletId, setPresetWalletId] = useState(null)
   const [form, setForm] = useState({})
+  const [openMenu, setOpenMenu] = useState(null)
+  const [renameWalletId, setRenameWalletId] = useState(null)
 
   const thisMonth = monthKey(new Date().toISOString())
   const { total, monthIncome, monthExpense, activity } = useMemo(() => {
@@ -45,6 +49,19 @@ export default function WalletPage() {
     setModal(type)
   }
   function closeModal() { setModal(null) }
+
+  async function handleRename() {
+    const newName = (form.name || '').trim()
+    if (!newName || !renameWalletId) return
+    await updateAccount(renameWalletId, { name: newName })
+    setRenameWalletId(null)
+    setForm({})
+  }
+
+  async function handleDelete(walletId) {
+    await deleteAccount(walletId)
+    setOpenMenu(null)
+  }
 
   async function handleSave() {
     const amount = Number(form.amount)
@@ -115,7 +132,24 @@ export default function WalletPage() {
                     <div>
                       <div className="wallet-head">
                         <div className="wallet-icon" style={{ background: st.bg, color: st.color }}>{ICONS[w.type] || '💰'}</div>
-                        <div><div className="wallet-name">{w.name}</div><div className="wallet-type">{w.type}</div></div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div className="wallet-name">{w.name}</div>
+                          <div className="wallet-type">{w.type}</div>
+                        </div>
+                        <DropdownMenu
+                          open={openMenu === w.id}
+                          onClose={() => setOpenMenu(null)}
+                          trigger={
+                            <button type="button" className="goal-menu-btn" aria-label="Wallet actions" onClick={() => setOpenMenu(openMenu === w.id ? null : w.id)}>
+                              <MoreVertical size={15} />
+                            </button>
+                          }
+                        >
+                          <DropdownMenuItem onClick={() => { setRenameWalletId(w.id); setForm({ name: w.name }); setOpenMenu(null) }}><Edit2 size={14} /> Rename</DropdownMenuItem>
+                          {Number(w.balance) === 0 && (
+                            <DropdownMenuItem danger onClick={() => handleDelete(w.id)}><Trash2 size={14} /> Delete</DropdownMenuItem>
+                          )}
+                        </DropdownMenu>
                       </div>
                       <div className="wallet-balance">{formatCurrency(w.balance)}</div>
                     </div>
@@ -220,6 +254,16 @@ export default function WalletPage() {
           </>
         )}
       </Modal>
+
+      {renameWalletId && (
+        <Modal open={!!renameWalletId} onClose={() => { setRenameWalletId(null); setForm({}) }} title="Rename Wallet">
+          <FormField label="Wallet Name" value={form.name || ''} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+          <div className="modal-actions">
+            <button className="btn-ghost" onClick={() => { setRenameWalletId(null); setForm({}) }}>Cancel</button>
+            <button className="btn-primary" onClick={handleRename}>Save</button>
+          </div>
+        </Modal>
+      )}
     </div>
   )
 }
