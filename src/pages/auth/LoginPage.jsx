@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
+import styles from './finai/auth.module.css'
 
 export default function LoginPage() {
   const { signIn } = useAuth()
@@ -24,10 +25,10 @@ export default function LoginPage() {
 
   return (
     <div>
-      <h2 className="mb-1 font-display text-2xl">Welcome back</h2>
-      <p className="mb-6 text-sm text-muted">Sign in to your vault.</p>
+      <h2 className={styles.title}>Welcome back</h2>
+      <p className={styles.subtitle}>Sign in to your vault.</p>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className={styles.form}>
         <Input
           type="email"
           label="Email address"
@@ -44,15 +45,15 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        {error && <p className="text-xs text-negative">{error}</p>}
-        <Button type="submit" full disabled={loading}> 
+        {error && <p className={styles.fieldError}>{error}</p>}
+        <Button type="submit" full disabled={loading}>
           {loading ? 'Signing in…' : 'Sign in'}
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-muted">
+      <p className={styles.footer}>
         Don't have an account?{' '}
-        <Link to="/signup" className="text-[var(--green-dark)] hover:underline">
+        <Link to="/signup" className={styles.link}>
           Create one
         </Link>
       </p>

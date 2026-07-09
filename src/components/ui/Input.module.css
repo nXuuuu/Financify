@@ -1,0 +1,28 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+.label {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+.control {
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-text);
+  outline: none;
+}
+.control::placeholder {
+  color: rgba(139, 147, 161, 0.6);
+}
+.control:focus {
+  border-color: var(--color-brass);
+}
+.error {
+  font-size: 0.75rem;
+  color: var(--color-negative);
+}

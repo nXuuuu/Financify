@@ -81,8 +81,8 @@ export default function TransactionsPage() {
             <div className="rt-row" key={t.id}>
               <div className="rt-info">
                 <div className="rt-name">{t.merchant}</div>
-                <div className="rt-date">{new Date(t.date).toLocaleString()} · {t.category}</div>
               </div>
+              <div className="rt-date">{new Date(t.date).toLocaleString()} <span className='rt-dot'>·</span> <span>{t.category}</span></div>
               <div className={`rt-amt ${t.type === 'income' ? 'pos' : 'neg'}`}>
                 {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
               </div>

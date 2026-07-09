@@ -17,6 +17,22 @@
  */
 
 :root {
+  /* Dark theme (auth/component tokens, formerly Tailwind @theme) */
+  --font-display: "Source Serif 4", Georgia, serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --color-ink: #0e1116;
+  --color-surface: #161b22;
+  --color-surface-2: #1c2230;
+  --color-border: #262c36;
+  --color-text: #e8eaed;
+  --color-muted: #8b93a1;
+  --color-brass: #c9a227;
+  --color-brass-dim: #8a701f;
+  --color-positive: #4ade80;
+  --color-negative: #f87171;
+
   /* Surfaces */
   --bg: #eef1ec;
   --sidebar-bg: #ffffff;

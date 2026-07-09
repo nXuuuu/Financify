@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
+import styles from './finai/auth.module.css'
 
 export default function SignupPage() {
   const { signUp } = useAuth()
@@ -25,13 +26,13 @@ export default function SignupPage() {
 
   if (sent) {
     return (
-      <div className="text-center">
-        <h2 className="mb-2 font-display text-2xl">Check your inbox</h2>
-        <p className="text-sm text-muted">
-          We sent a confirmation link to <span className="text-text">{email}</span>. Confirm your
+      <div className={styles.center}>
+        <h2 className={styles.titleMb2}>Check your inbox</h2>
+        <p className={styles.subtitleTight}>
+          We sent a confirmation link to <span className={styles.textStrong}>{email}</span>. Confirm your
           email to activate your account.
         </p>
-        <Link to="/login" className="mt-6 inline-block text-sm text-brass hover:underline">
+        <Link to="/login" className={styles.linkBlock}>
           Back to sign in
         </Link>
       </div>
@@ -40,10 +41,10 @@ export default function SignupPage() {
 
   return (
     <div>
-      <h2 className="mb-1 font-display text-2xl">Create your vault</h2>
-      <p className="mb-6 text-sm text-muted">Start tracking in minutes.</p>
+      <h2 className={styles.title}>Create your vault</h2>
+      <p className={styles.subtitle}>Start tracking in minutes.</p>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className={styles.form}>
         <Input
           type="text"
           label="Full name"
@@ -69,15 +70,15 @@ export default function SignupPage() {
           minLength={6}
           required
         />
-        {error && <p className="text-xs text-negative">{error}</p>}
+        {error && <p className={styles.fieldError}>{error}</p>}
         <Button type="submit" full disabled={loading}>
           {loading ? 'Creating account…' : 'Create account'}
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-muted">
+      <p className={styles.footer}>
         Already have an account?{' '}
-        <Link to="/login" className="text-[var(--green-dark)]  hover:underline">
+        <Link to="/login" className={styles.link}>
           Sign in
         </Link>
       </p>

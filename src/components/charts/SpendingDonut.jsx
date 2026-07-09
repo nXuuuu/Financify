@@ -1,11 +1,12 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { formatCurrency } from '@/lib/format'
+import styles from './SpendingDonut.module.css'
 
 const COLORS = ['#C9A227', '#8A701F', '#4ADE80', '#60A5FA', '#F87171', '#A78BFA', '#34D399']
 
 export default function SpendingDonut({ data }) {
   if (!data.length) {
-    return <p className="py-10 text-center text-sm text-muted">No expenses yet this month.</p>
+    return <p className={styles.empty}>No expenses yet this month.</p>
   }
 
   return (
