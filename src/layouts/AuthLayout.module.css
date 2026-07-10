@@ -1,17 +1,10 @@
 :root {
-  --bg: #eef1ec;
-  --sidebar-bg: #ffffff;
-  --card-bg: #ffffff;
-  --ink: #12251c;
-  --muted: #7c8a82;
-  --muted-2: #9aa79f;
-  --border: #e4e9e3;
-  --green: #22c55e;
-  --green-dark: #16a34a;
-  
-  /* Added missing color design variables extracted from your gradients */
+  /* Base tokens (--bg, --ink, --border, etc.) come from src/styles/tokens.css,
+     which also owns the [data-theme='dark'] overrides — redeclaring them
+     here would win the cascade once this stylesheet loads and silently
+     force light colors app-wide. Only truly page-specific extras live here. */
   --brass: #d4af37;
-  --text-main: #ffffff; 
+  --text-main: #ffffff;
 }
 
 /* Container styling replacing: relative flex min-h-screen items-center justify-center overflow-hidden bg-ink */

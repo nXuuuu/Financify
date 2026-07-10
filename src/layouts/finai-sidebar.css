@@ -1,14 +1,7 @@
-:root {
-  --bg: #eef1ec;
-  --sidebar-bg: #ffffff;
-  --card-bg: #ffffff;
-  --ink: #12251c;
-  --muted: #7c8a82;
-  --muted-2: #9aa79f;
-  --border: #e4e9e3;
-  --green: #22c55e;
-  --green-dark: #16a34a;
-}
+/* Design tokens now live once, globally, in src/styles/tokens.css
+   (which also defines the [data-theme='dark'] overrides) — this file
+   used to redeclare an identical :root block, which would win the
+   cascade over the dark-theme override and silently force light colors. */
 
 * { 
   box-sizing: border-box; 
@@ -98,7 +91,7 @@
   gap: 10px; 
   padding: 10px; 
   border-radius: 10px; 
-  color: #4b5a51; 
+  color: var(--text-secondary); 
   font-size: 14px; 
   font-weight: 500; 
   cursor: pointer; 
@@ -116,7 +109,7 @@
 }
 
 .nav-item:hover { 
-  background: #f2f5f0; 
+  background: var(--surface-hover); 
 }
 
 .nav-item.active { 
@@ -179,7 +172,7 @@
 }
 
 .menu-toggle:hover { 
-  background: #f2f5f0; 
+  background: var(--surface-hover); 
 }
 
 /* Backdrop Overlay */
@@ -188,7 +181,7 @@
   position: fixed; 
   inset: 0; 
   z-index: 45;
-  background: rgba(18, 37, 28, 0.45);
+  background: var(--overlay);
   opacity: 0; 
   pointer-events: none;
   transition: opacity .2s ease;
@@ -232,7 +225,7 @@
 }
 
 .menu-toggle:hover { 
-  background: #f2f5f0; 
+  background: var(--surface-hover); 
 }
 
 /* ---------- Responsive Breakpoints (Mobile layout re-force) ---------- */
@@ -385,7 +378,7 @@
   padding: 8px;
   border: none;
   background: transparent;
-  color: #9ca3af;
+  color: var(--muted);
   border-radius: 6px;
   cursor: pointer;
   transition: color 0.2s, background-color 0.2s;
@@ -404,7 +397,7 @@
   left: 50%;
   transform: translateX(-50%) scale(0); 
   transform-origin: bottom center;
-  background-color: #171717;
+  background-color: var(--color-ink);
   color: #ffffff;
   padding: 4px 8px;
   border-radius: 4px;

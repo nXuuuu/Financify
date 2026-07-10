@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
+import { useTheme } from '@/context/ThemeContext'
 import { supabase } from '@/lib/supabase' // adjust path to match your project
 import PageHeader from '@/components/ui/PageHeader'
 import Modal from '@/components/ui/Modal'
@@ -17,6 +18,7 @@ function maskEmail(email) {
 
 export default function SettingsPage() {
   const { user, updateProfile, updatePassword, signOut } = useAuth()
+  const { isDark, toggleTheme } = useTheme()
 
   const fileInputRef = useRef(null)
   const [avatarUrl, setAvatarUrl] = useState(user?.user_metadata?.avatar_url || null)
@@ -310,7 +312,13 @@ export default function SettingsPage() {
             <div className="s-title">Dark mode</div>
             <div className="s-sub">Switch between light and dark theme</div>
           </div>
-          <button className="toggle" aria-label="Toggle dark mode" />
+          <button
+            className={`toggle${isDark ? ' on' : ''}`}
+            role="switch"
+            aria-checked={isDark}
+            aria-label="Toggle dark mode"
+            onClick={toggleTheme}
+          />
         </div>
 
         <div className="setting-row">

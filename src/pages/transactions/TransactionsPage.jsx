@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { Search } from 'lucide-react'
 import { useFinance } from '@/context/FinanceContext'
 import { formatCurrency } from '@/lib/format'
 import PageHeader from '@/components/ui/PageHeader'
@@ -73,7 +74,10 @@ export default function TransactionsPage() {
             <option value="income">Income</option>
             <option value="expense">Expense</option>
           </select>
-          <input placeholder="Search transactions..." value={search} onChange={(e) => setSearch(e.target.value)} />
+          <div className="search-input">
+            <Search size={15} className="search-input-icon" />
+            <input placeholder="Search transactions..." value={search} onChange={(e) => setSearch(e.target.value)} />
+          </div>
         </div>
 
         <div className="rt-list">

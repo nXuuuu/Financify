@@ -31,20 +31,20 @@
 .btn-primary:hover { background: #12933f; }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-ghost {
-  flex: 1; background: #fff; border: 1px solid var(--border); color: #4b5a51;
+  flex: 1; background: var(--card-bg); border: 1px solid var(--border); color: var(--text-secondary);
   font-weight: 600; font-size: 13px; padding: 10px; border-radius: 10px; cursor: pointer;
 }
-.btn-ghost:hover { background: #f5f7f4; }
+.btn-ghost:hover { background: var(--surface-hover); }
 .btn-danger-solid {
   flex: 1; background: var(--red); color: #fff; border: none;
   font-weight: 700; font-size: 13px; padding: 10px; border-radius: 10px; cursor: pointer;
 }
 .btn-danger-solid:hover { background: #dc2626; }
 .icon-btn {
-  width: 40px; height: 40px; border-radius: 50%; background: #fff; border: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: center; color: #37473d; cursor: pointer;
+  width: 40px; height: 40px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center; color: var(--text-secondary); cursor: pointer;
 }
-.icon-btn:hover { background: #f5f7f4; }
+.icon-btn:hover { background: var(--surface-hover); }
 
 /* Card */
 .card {
@@ -68,20 +68,20 @@
 }
 
 /* Modal */
-.modal-overlay { position: fixed; inset: 0; background: rgba(14,32,24,0.35); display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+.modal-overlay { position: fixed; inset: 0; background: var(--overlay); display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
 .modal-overlay.open { display: flex; }
-.modal-card { background: #fff; border-radius: var(--radius-lg); padding: 22px; width: 100%; max-width: 400px; box-shadow: 0 20px 50px rgba(18,37,28,0.25); }
+.modal-card { background: var(--card-bg); border-radius: var(--radius-lg); padding: 22px; width: 100%; max-width: 400px; box-shadow: 0 20px 50px rgba(18,37,28,0.25); }
 .modal-card-sm { max-width: 340px; }
 .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
 .modal-head h3 { font-size: 15px; margin: 0; font-weight: 700; }
-.modal-close { width: 26px; height: 26px; border-radius: 8px; border: 1px solid var(--border); background: #fff; cursor: pointer; color: #5b6a61; display: flex; align-items: center; justify-content: center; }
+.modal-close { width: 26px; height: 26px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); cursor: pointer; color: var(--text-tertiary); display: flex; align-items: center; justify-content: center; }
 .modal-actions { display: flex; gap: 10px; margin-top: 6px; }
 .modal-actions .btn-primary { flex: 1; justify-content: center; }
 
 /* FormField */
 .form-group { margin-bottom: 14px; }
 .form-label { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; display: block; }
-.form-input, .form-select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; color: var(--ink); background: #fff; }
+.form-input, .form-select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; color: var(--ink); background: var(--input-bg); }
 .form-input:focus, .form-select:focus { outline: none; border-color: var(--green-dark); }
 .field-error { display: block; font-size: 11px; color: var(--red); margin-top: 4px; }
 
@@ -89,22 +89,22 @@
 .badge { font-size: 10.5px; font-weight: 700; padding: 4px 9px; border-radius: 20px; letter-spacing: 0.02em; white-space: nowrap; }
 .badge-success { background: var(--green-pale); color: var(--green-dark); }
 .badge-failed { background: var(--red-pale); color: var(--red); }
-.badge-warning { background: #fef3c7; color: #b45309; }
+.badge-warning { background: var(--amber-pale); color: var(--amber-dark); }
 .badge-on_track { background: var(--green-pale); color: var(--green-dark); }
-.badge-nearly_full { background: #fef3c7; color: #b45309; }
+.badge-nearly_full { background: var(--amber-pale); color: var(--amber-dark); }
 .badge-exceeded { background: var(--red-pale); color: var(--red); }
-.badge-no_spend { background: #e4e9e3; color: #5b6a61; }
-.badge-paused { background: #e4e9e3; color: #5b6a61; }
+.badge-no_spend { background: var(--border); color: var(--text-tertiary); }
+.badge-paused { background: var(--border); color: var(--text-tertiary); }
 
 /* StatRow / StatCard */
 .stat-row { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; margin-bottom: 18px; }
 .stat-card { display: flex; flex-direction: column; gap: 10px; min-width: 180px; margin: 0;}
 .stat-top { display: flex; align-items: center; gap: 8px; }
 .stat-icon { width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-.stat-icon.income { background: #dcfce7; color: #16a34a; }
-.stat-icon.expense { background: #fde3e2; color: #ef4444; }
+.stat-icon.income { background: var(--green-pale); color: var(--green-dark); }
+.stat-icon.expense { background: var(--red-pale); color: var(--red); }
 .stat-icon.net-income { background: var(--green-pale); color: var(--green-dark); }
-.stat-icon.net { background: #dcfce7; color: #16a34a; }
+.stat-icon.net { background: var(--green-pale); color: var(--green-dark); }
 .stat-label { font-size: 12px; color: var(--muted); font-weight: 600; }
 .stat-amount { font-size: 19px; font-weight: 700; }
 
@@ -112,18 +112,18 @@
 .goal-menu-wrap { position: relative; flex-shrink: 0; }
 .goal-menu-btn {
   width: 28px; height: 28px; border-radius: 8px; border: 1px solid transparent; background: transparent;
-  color: #5b6a61; font-size: 16px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: var(--text-tertiary); font-size: 16px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center;
 }
-.goal-menu-btn:hover { background: #f2f5f0; border-color: var(--border); }
+.goal-menu-btn:hover { background: var(--surface-hover); border-color: var(--border); }
 .goal-menu-backdrop { position: fixed; inset: 0; z-index: 10; }
 .goal-menu {
-  position: absolute; top: 32px; right: 0; z-index: 20; background: #fff; border: 1px solid var(--border);
+  position: absolute; top: 32px; right: 0; z-index: 20; background: var(--card-bg); border: 1px solid var(--border);
   border-radius: 12px; box-shadow: 0 12px 30px rgba(18,37,28,0.14); padding: 6px; display: flex;
   flex-direction: column; min-width: 140px;
 }
 .goal-menu.align-up { top: auto; bottom: 32px; }
 .goal-menu button { text-align: left; background: none; border: none; padding: 9px 10px; border-radius: 8px; font-size: 12.5px; font-weight: 600; color: var(--ink); cursor: pointer; white-space: nowrap; }
-.goal-menu button:hover { background: #f2f5f0; }
+.goal-menu button:hover { background: var(--surface-hover); }
 .goal-menu button.danger { color: var(--red); }
 .goal-menu button.danger:hover { background: var(--red-pale); }
 
@@ -137,7 +137,7 @@
 .trend-note.on-light { color: var(--muted); }
 
 /* Error banner (Analytics + Dashboard) */
-.error-banner { display: flex; align-items: center; gap: 8px; background: #fde3e2; color: #b91c1c; padding: 10px 14px; border-radius: 10px; font-size: 12.5px; margin-bottom: 14px; }
+.error-banner { display: flex; align-items: center; gap: 8px; background: var(--red-pale); color: var(--red-strong); padding: 10px 14px; border-radius: 10px; font-size: 12.5px; margin-bottom: 14px; }
 
 /* Chart tooltip (Analytics + Dashboard) */
 .chart-tooltip {
@@ -178,7 +178,7 @@
 .section-title h2 { font-size: 15px; margin: 0; font-weight: 700; }
 
 /* Filter pill select */
-.filter-select { font-size: 12px; color: #4b5a51; background: #f2f5f0; border: 1px solid var(--border); padding: 7px 10px; border-radius: 20px; cursor: pointer; }
+.filter-select { font-size: 12px; color: var(--text-secondary); background: var(--surface-hover); border: 1px solid var(--border); padding: 7px 10px; border-radius: 20px; cursor: pointer; }
 
 /* Recent-transactions-style row list (dashboard/wallet/transactions) */
 .rt-list { display: flex; flex-direction: column; gap: 14px; }
@@ -197,7 +197,7 @@
 .spending-total { font-size: 11.5px; color: var(--muted); }
 
 /* Progress bar (goals/budgets) */
-.progress-track { height: 8px; border-radius: 20px; background: #eef1ec; overflow: hidden; margin-bottom: 10px; }
+.progress-track { height: 8px; border-radius: 20px; background: var(--track-bg); overflow: hidden; margin-bottom: 10px; }
 .progress-fill { height: 100%; border-radius: 20px; background: var(--green-dark); transition: width .4s ease, background .3s ease; }
 
 /* Two-up form row (transactions/budgets) */
@@ -207,12 +207,12 @@
 .quick-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
 .quick-item {
   display: flex; flex-direction: column; align-items: center; gap: 7px;
-  padding: 12px 4px; border-radius: 14px; background: #f6f8f4; border: 1px solid var(--border);
-  cursor: pointer; font-size: 11px; font-weight: 600; color: #37473d;
+  padding: 12px 4px; border-radius: 14px; background: var(--surface-alt); border: 1px solid var(--border);
+  cursor: pointer; font-size: 11px; font-weight: 600; color: var(--text-secondary);
 }
-.quick-item:hover { background: #eef3ea; }
+.quick-item:hover { background: var(--surface-alt-2); }
 .quick-item .qi-icon {
-  width: 34px; height: 34px; border-radius: 10px; background: #fff; border: 1px solid var(--border);
+  width: 34px; height: 34px; border-radius: 10px; background: var(--card-bg); border: 1px solid var(--border);
   display: flex; align-items: center; justify-content: center; color: var(--green-dark);
 }
 
@@ -233,7 +233,7 @@
 .legend-list { display: flex; flex-direction: column; gap: 11px; }
 .legend-row { display: flex; align-items: center; gap: 10px; }
 .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-.legend-name { font-size: 13px; color: #37473d; flex: 1; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.legend-name { font-size: 13px; color: var(--text-secondary); flex: 1; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .legend-amount { font-size: 13px; font-weight: 700; text-align: right; }
 .legend-pct { font-size: 12px; color: var(--muted); font-weight: 600; text-align: right; }
 
@@ -243,5 +243,5 @@
 .msg-banner.success { color: var(--green-dark); }
 
 /* Segmented control (goals/transactions/analytics) */
-.segmented { display: flex; background: #f2f5f0; border: 1px solid var(--border); border-radius: 10px; padding: 3px; gap: 2px; }
-.segmented button.active { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(18,37,28,0.08); }
+.segmented { display: flex; background: var(--surface-hover); border: 1px solid var(--border); border-radius: 10px; padding: 3px; gap: 2px; }
+.segmented button.active { background: var(--card-bg); color: var(--ink); box-shadow: 0 1px 3px rgba(18,37,28,0.08); }

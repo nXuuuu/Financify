@@ -72,4 +72,56 @@
 
   /* Shadows */
   --shadow-card: 0 1px 2px rgba(18, 37, 28, 0.04), 0 8px 24px rgba(18, 37, 28, 0.04);
+
+  /*
+   * Dark-mode-aware semantic tokens.
+   * These replace what used to be hardcoded hex values scattered across
+   * page CSS (e.g. #fff card backgrounds, #f2f5f0 hover states, #4b5a51
+   * secondary text). Same values as before in light mode; overridden below
+   * for dark mode so every component using them switches automatically.
+   */
+  --input-bg: #ffffff;
+  --surface-hover: #f2f5f0;
+  --surface-alt: #f6f8f4;
+  --surface-alt-2: #eef3ea;
+  --text-secondary: #4b5a51;
+  --text-tertiary: #5b6a61;
+  --overlay: rgba(14, 32, 24, 0.35);
+  --track-bg: #eef1ec;
+  --toggle-off-bg: #d7ddd4;
+  --amber-pale: #fef3c7;
+  --amber-dark: #b45309;
+  --red-strong: #b91c1c;
+}
+
+/* ---------------- Dark theme ---------------- */
+[data-theme='dark'] {
+  --bg: #0f1611;
+  --sidebar-bg: #141c17;
+  --card-bg: #141c17;
+  --dark-card: #0a1410;
+  --dark-card-2: #08110d;
+
+  --ink: #e9efe9;
+  --muted: #92a099;
+  --muted-2: #6f7d76;
+  --border: #253028;
+
+  --green-pale: #123321;
+  --red-pale: #3a1817;
+
+  --input-bg: #182019;
+  --surface-hover: #1b241d;
+  --surface-alt: #17201a;
+  --surface-alt-2: #1c2620;
+  --text-secondary: #c3ccc4;
+  --text-tertiary: #9aa79f;
+  --overlay: rgba(0, 0, 0, 0.55);
+  --track-bg: #1c2620;
+  --toggle-off-bg: #2b352d;
+  --amber-pale: rgba(245, 158, 11, 0.16);
+  --amber-dark: #f0b95a;
+  --red-strong: #f28b82;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.25), 0 8px 24px rgba(0, 0, 0, 0.28);
 }

@@ -28,7 +28,7 @@ button{ font-family:inherit; }
   background: linear-gradient(160deg, var(--dark-card) 0%, var(--dark-card-2) 100%);
   color:#eefbf3; border:none; display:flex; flex-direction:column; justify-content:space-between;
 }
-.card.balance-card .label{ display:flex; align-items:center; gap:6px; font-size:12.5px; color:#a9c3b3; margin-bottom:10px; }
+.card.balance-card .label{ display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-tertiary); margin-bottom:10px; }
 .card.balance-card .amount{ font-size:26px; font-weight:700; letter-spacing:-0.5px; }
 
 /* Wallets grid */
@@ -46,7 +46,7 @@ button{ font-family:inherit; }
 
 }
 .wallet-card{
-  background:#fff; border:1px solid var(--border); border-radius: var(--radius-md); padding:16px;
+  background:var(--card-bg); border:1px solid var(--border); border-radius: var(--radius-md); padding:16px;
   display: flex; justify-content: space-between; align-items: center;
 }
 .wallet-head{ display:flex; align-items:center; gap:10px; margin-bottom:14px; }
@@ -58,15 +58,15 @@ button{ font-family:inherit; }
 .wallet-actions button{ flex:1; font-size:11.5px; font-weight:600; padding:8px; border-radius:8px; cursor:pointer; }
 .wallet-actions .add-btn{ background:var(--green-dark); color:#fff; border:none; }
 .wallet-actions .add-btn:hover{ background:#12933f; }
-.wallet-actions .send-btn{ background:#fff; border:1px solid var(--border); color:#4b5a51; }
-.wallet-actions .send-btn:hover{ background:#f5f7f4; }
+.wallet-actions .send-btn{ background:var(--card-bg); border:1px solid var(--border); color:var(--text-secondary); }
+.wallet-actions .send-btn:hover{ background:var(--surface-hover); }
 
 .wallet-card.add-card{
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
-  border:1.5px dashed var(--border); background:#f6f8f4; cursor:pointer; color:#5b6a61;
+  border:1.5px dashed var(--border); background:var(--surface-alt); cursor:pointer; color:var(--text-tertiary);
   min-height:158px; font-size:13px; font-weight:600;
 }
-.wallet-card.add-card:hover{ background:#eef3ea; border-color:#c7d2c8; }
+.wallet-card.add-card:hover{ background:var(--surface-alt-2); border-color:var(--muted-2); }
 
 /* Quick actions */
 
