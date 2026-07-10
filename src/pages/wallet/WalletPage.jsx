@@ -33,6 +33,7 @@ export default function WalletPage() {
   const [form, setForm] = useState({})
   const [openMenu, setOpenMenu] = useState(null)
   const [renameWalletId, setRenameWalletId] = useState(null)
+  const [saveError, setSaveError] = useState('')
 
   const thisMonth = monthKey(new Date().toISOString())
   const { total, monthIncome, monthExpense, activity } = useMemo(() => {
@@ -43,12 +44,25 @@ export default function WalletPage() {
     return { total, monthIncome, monthExpense, activity: transactions.slice(0, 6) }
   }, [accounts, transactions, thisMonth])
 
+  // Whichever wallet money is currently flowing OUT of in the open modal —
+  // the "from" wallet on a transfer, or the selected wallet on an expense.
+  const activeWalletId = modal === 'transfer'
+    ? (form.fromId || presetWalletId || accounts[0]?.id)
+    : (form.walletId || presetWalletId || accounts[0]?.id)
+  const activeWallet = accounts.find((a) => a.id === activeWalletId)
+  const isOutflow = modal === 'expense' || modal === 'transfer'
+  const overBalance = isOutflow && form.amount && activeWallet && Number(form.amount) > Number(activeWallet.balance)
+
   function openModal(type, walletId = null) {
     setForm({})
+    setSaveError('')
     setPresetWalletId(walletId)
     setModal(type)
   }
-  function closeModal() { setModal(null) }
+  function closeModal() {
+    setModal(null)
+    setSaveError('')
+  }
 
   async function handleRename() {
     const newName = (form.name || '').trim()
@@ -66,10 +80,12 @@ export default function WalletPage() {
   async function handleSave() {
     const amount = Number(form.amount)
     if (!amount) return
+    setSaveError('')
+
     if (modal === 'income' || modal === 'expense') {
       const accountId = form.walletId || presetWalletId || accounts[0]?.id
       if (!accountId) return
-      await addTransaction({
+      const { error } = await addTransaction({
         account_id: accountId,
         type: modal,
         category: modal === 'income' ? form.source || 'Income' : form.category || 'Other',
@@ -77,11 +93,13 @@ export default function WalletPage() {
         amount,
         date: new Date().toISOString(),
       })
+      if (error) { setSaveError(error.message || 'Something went wrong.'); return }
     } else if (modal === 'transfer') {
       const fromId = form.fromId || presetWalletId || accounts[0]?.id
       const toId = form.toId
       if (!fromId || !toId || fromId === toId) return
-      await addTransaction({ account_id: fromId, type: 'expense', category: 'Transfer', merchant: 'Transfer out', amount, date: new Date().toISOString() })
+      const out = await addTransaction({ account_id: fromId, type: 'expense', category: 'Transfer', merchant: 'Transfer out', amount, date: new Date().toISOString() })
+      if (out.error) { setSaveError(out.error.message || 'Something went wrong.'); return }
       await addTransaction({ account_id: toId, type: 'income', category: 'Transfer', merchant: 'Transfer in', amount, date: new Date().toISOString() })
     }
     closeModal()
@@ -247,9 +265,21 @@ export default function WalletPage() {
                 </FormField>
               )}
             </div>
+
+            {isOutflow && activeWallet && (
+              <div
+                className="wallet-type"
+                style={{ margin: '-8px 0 14px', color: overBalance ? 'var(--red)' : undefined }}
+              >
+                Available in {activeWallet.name}: {formatCurrency(activeWallet.balance)}
+              </div>
+            )}
+
+            {saveError && <p className="msg-banner error">{saveError}</p>}
+
             <div className="modal-actions">
               <button className="btn-ghost" onClick={closeModal}>Cancel</button>
-              <button className="btn-primary" onClick={handleSave}>Save</button>
+              <button className="btn-primary" onClick={handleSave} disabled={overBalance}>Save</button>
             </div>
           </>
         )}

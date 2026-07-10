@@ -26,18 +26,32 @@ export default function TransactionsPage() {
     })
   }, [transactions, fWallet, fType, search])
 
+  // When editing an expense on the same wallet it was originally posted to,
+  // the original amount is already "out" of that wallet — so it counts back
+  // toward what's available for this edit. Different wallet, or a fresh
+  // transaction, gets no refund.
+  function isEditingRefund() {
+    if (!editTx || editTx.account_id !== form.account_id) return 0
+    return editTx.type === 'expense' ? Number(editTx.amount) : -Number(editTx.amount)
+  }
+
+  const selectedAccount = accounts.find((a) => a.id === form.account_id)
+  const availableBalance = selectedAccount ? Number(selectedAccount.balance) + isEditingRefund() : null
+  const overBalance = form.type === 'expense' && form.amount && availableBalance !== null && Number(form.amount) > availableBalance
+
   function validate() {
     const e = {}
     if (!form.account_id) e.account_id = 'Select a wallet'
     if (!form.category) e.category = 'Select a category'
     if (!form.amount || Number(form.amount) <= 0) e.amount = 'Enter an amount greater than 0'
+    if (!e.amount && overBalance) e.amount = `Exceeds available balance (${formatCurrency(availableBalance)})`
     setErrors(e)
     return Object.keys(e).length === 0
   }
 
   async function handleSave() {
     if (!validate()) return
-    await addTransaction({
+    const { error } = await addTransaction({
       account_id: form.account_id,
       type: form.type,
       category: form.category,
@@ -45,6 +59,7 @@ export default function TransactionsPage() {
       amount: Number(form.amount),
       date: form.date ? new Date(form.date).toISOString() : new Date().toISOString(),
     })
+    if (error) { setErrors({ save: error.message || 'Something went wrong.' }); return }
     setModalOpen(false)
     setForm({ type: 'expense' })
     setErrors({})
@@ -180,6 +195,15 @@ export default function TransactionsPage() {
           </FormField>
         </div>
 
+        {form.type === 'expense' && selectedAccount && (
+          <div
+            className="goal-deadline"
+            style={{ margin: '-8px 0 12px', color: overBalance ? 'var(--red)' : undefined }}
+          >
+            Available in {selectedAccount.name}: {formatCurrency(availableBalance)}
+          </div>
+        )}
+
         {isEditing && (
           <FormField
             label="Date"
@@ -199,7 +223,11 @@ export default function TransactionsPage() {
 
         <div className="modal-actions">
           <button className="btn-ghost" onClick={closeModal}>Cancel</button>
-          <button className="btn-primary" onClick={isEditing ? handleSaveEdit : handleSave}>
+          <button
+            className="btn-primary"
+            onClick={isEditing ? handleSaveEdit : handleSave}
+            disabled={overBalance}
+          >
             {isEditing ? 'Save Changes' : 'Save'}
           </button>
         </div>
