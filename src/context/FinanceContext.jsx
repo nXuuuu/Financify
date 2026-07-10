@@ -9,6 +9,8 @@ const DEFAULT_CATEGORIES = {
   expense: ['Housing', 'Groceries', 'Dining Out', 'Utilities', 'Transport', 'Entertainment', 'Shopping'],
 }
 
+const formatMoney = (n) => `$${Number(n).toLocaleString()}`
+
 export function FinanceProvider({ children }) {
   const { user } = useAuth()
   const [accounts, setAccounts] = useState([])
@@ -82,6 +84,17 @@ export function FinanceProvider({ children }) {
   }
 
 const addTransaction = async (input) => {
+  // Guard: an expense can never exceed the wallet's current balance.
+  // This holds regardless of what the UI already checked — it's the
+  // last line of defense before money actually "leaves" a wallet.
+  if (input.type === 'expense') {
+    const acc = accounts.find((a) => a.id === input.account_id)
+    if (!acc) return { data: null, error: { message: 'Select a valid wallet.' } }
+    if (Number(input.amount) > Number(acc.balance)) {
+      return { data: null, error: { message: `Insufficient balance in ${acc.name}. Available: ${formatMoney(acc.balance)}.` } }
+    }
+  }
+
   const { data, error } = await supabase
     .from('transactions')
     .insert({ ...input, user_id: user.id })
@@ -144,6 +157,21 @@ const deleteTransaction = async (id) => {
     const oldAcc = accounts.find((a) => a.id === original.account_id)
     const newAcc = accounts.find((a) => a.id === next.account_id)
     if (!newAcc) return { error: { message: 'Select a valid wallet.' } }
+
+    // Guard: check against what the wallet's balance would be, accounting
+    // for the fact that editing removes the original transaction's effect
+    // first. If the wallet is unchanged, the original amount is "refunded"
+    // back into what's available for this edit; if the wallet changed,
+    // there's no refund on the new wallet.
+    if (next.type === 'expense') {
+      const refund = original.account_id === next.account_id
+        ? (original.type === 'expense' ? Number(original.amount) : -Number(original.amount))
+        : 0
+      const available = Number(newAcc.balance) + refund
+      if (Number(next.amount) > available) {
+        return { error: { message: `Insufficient balance in ${newAcc.name}. Available: ${formatMoney(available)}.` } }
+      }
+    }
 
     const oldDelta = original.type === 'expense' ? -Number(original.amount) : Number(original.amount)
     const newDelta = next.type === 'expense' ? -Number(next.amount) : Number(next.amount)

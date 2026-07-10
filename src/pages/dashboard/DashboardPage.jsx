@@ -120,12 +120,16 @@ function TransactionModal({ kind, categories, accounts, onClose, onSave }) {
   const meta = TX_META[kind]
   const catList = meta.type === 'income' ? categories.income : categories.expense
 
+  const selectedAccount = accounts.find((a) => a.id === form.account_id)
+  const overBalance = meta.type === 'expense' && form.amount && selectedAccount && Number(form.amount) > Number(selectedAccount.balance)
+
   function set(patch) { setForm((f) => ({ ...f, ...patch })) }
 
   function submit() {
     const amount = Number(form.amount)
     if (!form.account_id) { setErr('Select a wallet'); return }
     if (!amount || amount <= 0) { setErr('Enter an amount greater than 0'); return }
+    if (overBalance) { setErr(`Exceeds available balance (${fmt(selectedAccount.balance)})`); return }
     onSave({
       account_id: form.account_id,
       type: meta.type,
@@ -145,6 +149,15 @@ function TransactionModal({ kind, categories, accounts, onClose, onSave }) {
       </FormField>
 
       <FormField label="Amount" type="number" min="0.01" step="0.01" value={form.amount || ''} onChange={(e) => set({ amount: e.target.value })} />
+
+      {meta.type === 'expense' && selectedAccount && (
+        <div
+          className="goal-deadline"
+          style={{ margin: '-8px 0 12px', color: overBalance ? 'var(--red)' : undefined }}
+        >
+          Available in {selectedAccount.name}: {fmt(selectedAccount.balance)}
+        </div>
+      )}
 
       {kind === 'income' && (
         <div className="form-row">
@@ -175,7 +188,7 @@ function TransactionModal({ kind, categories, accounts, onClose, onSave }) {
 
       <div className="modal-actions">
         <button className="btn-ghost" onClick={onClose}>Cancel</button>
-        <button className="btn-primary" onClick={submit}>Save</button>
+        <button className="btn-primary" onClick={submit} disabled={overBalance}>Save</button>
       </div>
     </Modal>
   )
@@ -266,6 +279,7 @@ export default function DashboardPage() {
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [notifOpen, setNotifOpen] = useState(false)
+  const [txError, setTxError] = useState('')
   const searchRef = useRef(null)
   const notifRef = useRef(null)
 
@@ -397,7 +411,9 @@ export default function DashboardPage() {
   }, [accounts, goals, monthExpense, prevExpense])
 
   async function handleSaveTx(entry) {
-    await addTransaction(entry)
+    setTxError('')
+    const { error } = await addTransaction(entry)
+    if (error) { setTxError(error.message || 'Something went wrong.'); return }
     setTxKind(null)
   }
 
@@ -662,7 +678,7 @@ export default function DashboardPage() {
           kind={txKind}
           categories={categories}
           accounts={accounts}
-          onClose={() => setTxKind(null)}
+          onClose={() => { setTxKind(null); setTxError('') }}
           onSave={handleSaveTx}
         />
       )}
