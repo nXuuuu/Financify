@@ -77,4 +77,7 @@ button{ font-family:inherit; }
 @media (max-width:1080px){
   .stat-row{ grid-template-columns: 1fr 1fr; }
   .goals-grid{ grid-template-columns:1fr; }
+  .process-goals-grid .goal-card:nth-child(odd):last-child{
+  grid-column: span 1;
+}
 }

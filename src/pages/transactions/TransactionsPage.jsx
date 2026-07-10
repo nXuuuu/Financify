@@ -133,7 +133,7 @@ export default function TransactionsPage() {
 
         <div className="rt-list">
           {filtered.map((t) => (
-            <div className="rt-row" key={t.id}>
+            <div className="rt-row rt-row-transaction" key={t.id}>
               <div className="rt-info">
                 <div className="rt-name">{t.merchant}</div>
               </div>

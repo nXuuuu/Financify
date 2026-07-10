@@ -55,7 +55,7 @@ button{ font-family:inherit; }
 .toggle.on::after{ left:21px; }
 
 /* Session rows (log out buttons) */
-.session-actions{ display:flex; gap:8px; }
+.session-actions{ display:flex; gap:8px; justify-content: flex-end;}
 @media (max-width:480px){
   .session-actions{ width:100%; }
 }

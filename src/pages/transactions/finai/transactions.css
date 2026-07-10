@@ -22,7 +22,7 @@
  * this page is correct on its own, not by load-order luck.
  */
 
-*{ box-sizing:border-box; }
+/* *{ box-sizing:border-box; } */
 button, input, select{ font-family:inherit; }
 
 .section-title{ flex-wrap:wrap; gap:10px; }
@@ -32,7 +32,7 @@ button, input, select{ font-family:inherit; }
 
 /* Search box (transactions filter row) */
 .search-input{
-  position:relative; flex:1; min-width:180px; display:flex; align-items:center;
+  position:relative; flex:1; min-width:100px; display:flex; align-items:center;
 }
 .search-input-icon{
   position:absolute; left:12px; color:var(--muted); pointer-events:none;

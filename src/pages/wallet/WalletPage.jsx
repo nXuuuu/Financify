@@ -197,7 +197,7 @@ export default function WalletPage() {
             <div className="section-title"><h2>Recent Activity</h2></div>
             <div className="rt-list">
               {activity.map((a) => (
-                <div className="rt-row" key={a.id}>
+                <div className="rt-row rt-row-wallet" key={a.id}>
                   <div className="rt-info">
                     <div className="rt-name">{a.merchant}</div>
                     <div className="rt-date">{new Date(a.date).toLocaleString()}</div>
