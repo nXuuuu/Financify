@@ -8,11 +8,12 @@ import FormField from '@/components/ui/FormField'
 import './finai/transactions.css'
 
 export default function TransactionsPage() {
-  const { accounts, transactions, categories, addTransaction, deleteTransaction } = useFinance()
+  const { accounts, transactions, categories, addTransaction, updateTransaction, deleteTransaction } = useFinance()
   const [fWallet, setFWallet] = useState('all')
   const [fType, setFType] = useState('all')
   const [search, setSearch] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
+  const [editTx, setEditTx] = useState(null) // transaction being edited, or null
   const [form, setForm] = useState({ type: 'expense' })
   const [errors, setErrors] = useState({})
 
@@ -49,9 +50,44 @@ export default function TransactionsPage() {
     setErrors({})
   }
 
+  function openEdit(t) {
+    setEditTx(t)
+    setForm({
+      type: t.type,
+      account_id: t.account_id,
+      category: t.category,
+      merchant: t.merchant,
+      amount: t.amount,
+      date: t.date.slice(0, 10),
+    })
+    setErrors({})
+  }
+
+  async function handleSaveEdit() {
+    if (!validate()) return
+    const { error } = await updateTransaction(editTx.id, {
+      account_id: form.account_id,
+      type: form.type,
+      category: form.category,
+      merchant: form.merchant?.trim() || form.category,
+      amount: Number(form.amount),
+      date: form.date ? new Date(form.date).toISOString() : new Date().toISOString(),
+    })
+    if (error) { setErrors({ save: error.message || 'Something went wrong.' }); return }
+    setEditTx(null)
+    setForm({ type: 'expense' })
+    setErrors({})
+  }
+
   function closeModal() {
     setModalOpen(false)
+    setEditTx(null)
+    setForm({ type: 'expense' })
+    setErrors({})
   }
+
+  const isEditing = !!editTx
+  const isOpen = modalOpen || isEditing
 
   return (
     <div className="finai-page">
@@ -90,14 +126,15 @@ export default function TransactionsPage() {
               <div className={`rt-amt ${t.type === 'income' ? 'pos' : 'neg'}`}>
                 {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
               </div>
-              <button className="modal-close" onClick={() => deleteTransaction(t.id)}>✕</button>
+              <button className="modal-close" onClick={() => openEdit(t)} aria-label="Edit transaction">✎</button>
+              <button className="modal-close" onClick={() => deleteTransaction(t.id)} aria-label="Delete transaction">✕</button>
             </div>
           ))}
           {filtered.length === 0 && <p className="spending-total">No transactions found.</p>}
         </div>
       </div>
 
-      <Modal open={modalOpen} onClose={closeModal} title="New Transaction">
+      <Modal open={isOpen} onClose={closeModal} title={isEditing ? 'Edit Transaction' : 'New Transaction'}>
         <div className="segmented">
           {['income', 'expense'].map((ty) => (
             <button
@@ -143,15 +180,28 @@ export default function TransactionsPage() {
           </FormField>
         </div>
 
+        {isEditing && (
+          <FormField
+            label="Date"
+            type="date"
+            value={form.date || ''}
+            onChange={(e) => setForm({ ...form, date: e.target.value })}
+          />
+        )}
+
         <FormField
           label="Merchant / Note"
           value={form.merchant || ''}
           onChange={(e) => setForm({ ...form, merchant: e.target.value })}
         />
 
+        {errors.save && <p className="msg-banner error">{errors.save}</p>}
+
         <div className="modal-actions">
           <button className="btn-ghost" onClick={closeModal}>Cancel</button>
-          <button className="btn-primary" onClick={handleSave}>Save</button>
+          <button className="btn-primary" onClick={isEditing ? handleSaveEdit : handleSave}>
+            {isEditing ? 'Save Changes' : 'Save'}
+          </button>
         </div>
       </Modal>
     </div>

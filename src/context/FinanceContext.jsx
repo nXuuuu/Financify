@@ -81,42 +81,115 @@ export function FinanceProvider({ children }) {
     return { error }
   }
 
-  const addTransaction = async (input) => {
+const addTransaction = async (input) => {
+  const { data, error } = await supabase
+    .from('transactions')
+    .insert({ ...input, user_id: user.id })
+    .select()
+    .single()
+  if (error) return { data: null, error }
+
+  const delta = input.type === 'expense' ? -Number(input.amount) : Number(input.amount)
+  const acc = accounts.find((a) => a.id === input.account_id)
+  if (acc) {
+    const { error: balError } = await supabase
+      .from('accounts')
+      .update({ balance: acc.balance + delta })
+      .eq('id', acc.id)
+
+    if (balError) {
+      // Compensate: don't leave a transaction on record with no matching balance change.
+      await supabase.from('transactions').delete().eq('id', data.id)
+      return { data: null, error: { message: 'Could not update wallet balance, so the transaction was not saved. Please try again.' } }
+    }
+    setAccounts((prev) => prev.map((a) => (a.id === acc.id ? { ...a, balance: a.balance + delta } : a)))
+  }
+
+  setTransactions((prev) => [data, ...prev])
+  return { data, error: null }
+}
+
+const deleteTransaction = async (id) => {
+  const tx = transactions.find((t) => t.id === id)
+  if (!tx) return { error: { message: 'Transaction not found.' } }
+
+  const { error } = await supabase.from('transactions').delete().eq('id', id)
+  if (error) return { error }
+
+  const delta = tx.type === 'expense' ? Number(tx.amount) : -Number(tx.amount)
+  const acc = accounts.find((a) => a.id === tx.account_id)
+  if (acc) {
+    const { error: balError } = await supabase
+      .from('accounts')
+      .update({ balance: acc.balance + delta })
+      .eq('id', acc.id)
+
+    if (balError) {
+      // Compensate: put the row back rather than leave the balance silently wrong.
+      await supabase.from('transactions').insert(tx)
+      return { error: { message: 'Could not update wallet balance, so the transaction was not deleted. Please try again.' } }
+    }
+    setAccounts((prev) => prev.map((a) => (a.id === acc.id ? { ...a, balance: a.balance + delta } : a)))
+  }
+
+  setTransactions((prev) => prev.filter((t) => t.id !== id))
+  return { error: null }
+}
+
+  const updateTransaction = async (id, patch) => {
+    const original = transactions.find((t) => t.id === id)
+    if (!original) return { error: { message: 'Transaction not found.' } }
+
+    const next = { ...original, ...patch }
+    const oldAcc = accounts.find((a) => a.id === original.account_id)
+    const newAcc = accounts.find((a) => a.id === next.account_id)
+    if (!newAcc) return { error: { message: 'Select a valid wallet.' } }
+
+    const oldDelta = original.type === 'expense' ? -Number(original.amount) : Number(original.amount)
+    const newDelta = next.type === 'expense' ? -Number(next.amount) : Number(next.amount)
+
     const { data, error } = await supabase
       .from('transactions')
-      .insert({ ...input, user_id: user.id })
+      .update(patch)
+      .eq('id', id)
       .select()
       .single()
-    if (!error) {
-      setTransactions((prev) => [data, ...prev])
-      // keep account balance in sync
-      const delta = input.type === 'expense' ? -input.amount : input.amount
-      const acc = accounts.find((a) => a.id === input.account_id)
-      if (acc) {
-        await supabase.from('accounts').update({ balance: acc.balance + delta }).eq('id', acc.id)
-        setAccounts((prev) => prev.map((a) => (a.id === acc.id ? { ...a, balance: a.balance + delta } : a)))
-      }
-    }
-    return { data, error }
-  }
+    if (error) return { error }
 
-  const deleteTransaction = async (id) => {
-    const tx = transactions.find((t) => t.id === id)
-    const { error } = await supabase.from('transactions').delete().eq('id', id)
-    if (!error) {
-      setTransactions((prev) => prev.filter((t) => t.id !== id))
-      if (tx) {
-        const delta = tx.type === 'expense' ? tx.amount : -tx.amount
-        const acc = accounts.find((a) => a.id === tx.account_id)
-        if (acc) {
-          await supabase.from('accounts').update({ balance: acc.balance + delta }).eq('id', acc.id)
-          setAccounts((prev) => prev.map((a) => (a.id === acc.id ? { ...a, balance: a.balance + delta } : a)))
-        }
+    async function applyBalances() {
+      if (original.account_id === next.account_id) {
+        const net = newDelta - oldDelta
+        if (net === 0) return { error: null }
+        return supabase.from('accounts').update({ balance: newAcc.balance + net }).eq('id', newAcc.id)
       }
+      const revertOld = oldAcc
+        ? await supabase.from('accounts').update({ balance: oldAcc.balance - oldDelta }).eq('id', oldAcc.id)
+        : { error: null }
+      if (revertOld.error) return revertOld
+      return supabase.from('accounts').update({ balance: newAcc.balance + newDelta }).eq('id', newAcc.id)
     }
-    return { error }
-  }
 
+    const { error: balError } = await applyBalances()
+    if (balError) {
+      // Undo the row edit so it matches the (unchanged) balances.
+      await supabase.from('transactions').update(original).eq('id', id)
+      return { error: { message: 'Could not update wallet balance, so the edit was not saved. Please try again.' } }
+    }
+
+    setTransactions((prev) => prev.map((t) => (t.id === id ? data : t)))
+    setAccounts((prev) => prev.map((a) => {
+      if (original.account_id === next.account_id && a.id === newAcc.id) {
+        return { ...a, balance: a.balance + (newDelta - oldDelta) }
+      }
+      if (original.account_id !== next.account_id) {
+        if (a.id === oldAcc?.id) return { ...a, balance: a.balance - oldDelta }
+        if (a.id === newAcc.id) return { ...a, balance: a.balance + newDelta }
+      }
+      return a
+    }))
+    return { data, error: null }
+  }
+  
 const addBudget = async (input) => {
     const { data, error } = await supabase
       .from('budgets')
@@ -303,6 +376,7 @@ const addBudget = async (input) => {
     deleteAccount,
     addTransaction,
     deleteTransaction,
+    updateTransaction,
     addBudget,
     updateBudget,
     deleteBudget,
