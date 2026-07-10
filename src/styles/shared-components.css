@@ -173,6 +173,10 @@
   -webkit-font-smoothing: antialiased;
 }
 
+[data-theme='dark'] .card.balance-card {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
 /* Section title row */
 .section-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .section-title h2 { font-size: 15px; margin: 0; font-weight: 700; }
@@ -231,10 +235,10 @@
 
 /* Legend list (budgets/dashboard/analytics spending breakdowns) */
 .legend-list { display: flex; flex-direction: column; gap: 11px; }
-.legend-row { display: flex; align-items: center; gap: 10px; }
+.legend-row { display: flex; align-items: center; gap: 10px; color: inherit; }
 .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
 .legend-name { font-size: 13px; color: var(--text-secondary); flex: 1; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.legend-amount { font-size: 13px; font-weight: 700; text-align: right; }
+.legend-amount { font-size: 13px; font-weight: 700; text-align: right; color: var(--ink); }
 .legend-pct { font-size: 12px; color: var(--muted); font-weight: 600; text-align: right; }
 
 /* Message banner (goals/settings) */

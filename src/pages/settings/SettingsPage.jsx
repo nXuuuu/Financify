@@ -291,20 +291,8 @@ export default function SettingsPage() {
         <div className="section-title">
           <div>
             <h2>App Settings</h2>
-            <p>Currency, appearance, and notifications</p>
+            <p>Appearance</p>
           </div>
-        </div>
-
-        <div className="setting-row">
-          <div className="setting-info">
-            <div className="s-title">Currency</div>
-            <div className="s-sub">Used for accounts, budgets, and reports</div>
-          </div>
-          <select className="form-select" style={{ width: 'auto' }} defaultValue="USD">
-            <option value="USD">USD</option>
-            <option value="KHR">KHR</option>
-            <option value="EUR">EUR</option>
-          </select>
         </div>
 
         <div className="setting-row">
@@ -319,30 +307,6 @@ export default function SettingsPage() {
             aria-label="Toggle dark mode"
             onClick={toggleTheme}
           />
-        </div>
-
-        <div className="setting-row">
-          <div className="setting-info">
-            <div className="s-title">Email alerts</div>
-            <div className="s-sub">Important account activity</div>
-          </div>
-          <button className="toggle on" aria-label="Toggle email alerts" />
-        </div>
-
-        <div className="setting-row">
-          <div className="setting-info">
-            <div className="s-title">Budget warnings</div>
-            <div className="s-sub">When you're close to a budget limit</div>
-          </div>
-          <button className="toggle on" aria-label="Toggle budget warnings" />
-        </div>
-
-        <div className="setting-row">
-          <div className="setting-info">
-            <div className="s-title">Weekly summary</div>
-            <div className="s-sub">Recap of income, spending, and goals</div>
-          </div>
-          <button className="toggle" aria-label="Toggle weekly summary" />
         </div>
       </div>
 
