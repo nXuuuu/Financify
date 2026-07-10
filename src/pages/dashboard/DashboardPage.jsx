@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useRef } from 'react'
-import { Search, Bell, ChartNoAxesCombined, ArrowUp, ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, Send, PlusCircle, ArrowDownToLine, CalendarClock, Coffee, AlertTriangle, X, PiggyBank, Target, Wallet2 } from 'lucide-react'
+import { Search, Bell, ChartNoAxesCombined, ArrowUp, ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, Send, PlusCircle, ArrowDownToLine, CalendarClock, AlertTriangle, X, PiggyBank, Target, Wallet2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useFinance } from '@/context/FinanceContext'
 import { useAuth } from '@/context/AuthContext'
@@ -598,7 +598,7 @@ export default function DashboardPage() {
                           .sort((a, b) => new Date(b.date) - new Date(a.date))
                           .map((t) => (
                             <div className="txn-row" key={t.id}>
-                              <div className="txn-icon"><Coffee size={14} /></div>
+                              <div className="txn-icon"><ArrowDownRight size={14} /></div>
                               <div className="txn-info">
                                 <div className="txn-name">{t.merchant}</div>
                                 <div className="txn-date">{new Date(t.date).toLocaleDateString()}</div>
@@ -638,7 +638,7 @@ export default function DashboardPage() {
               <div className="rt-list">
                 {recent.map((t) => (
                   <div className={`rt-row ${selectedCategory && t.category === selectedCategory ? 'rt-row-hl' : selectedCategory ? 'rt-row-dim' : ''}`} key={t.id}>
-                    <div className={`rt-icon ${t.type === 'income' ? 'deposit' : 'coffee'}`}>{t.type === 'income' ? <ArrowUp size={15} /> : <Coffee size={15} />}</div>
+                    <div className={`rt-icon ${t.type === 'income' ? 'deposit' : 'expenses'}`}>{t.type === 'income' ? <ArrowUpRight size={15} /> : <ArrowDownRight size={15} />}</div>
                     <div className="rt-info"><div className="rt-name">{t.merchant}</div><div className="rt-date">{new Date(t.date).toLocaleString()}</div></div>
                     <div className={`rt-amt ${t.type === 'income' ? 'pos' : 'neg'}`}>{t.type === 'income' ? '+' : '-'}{fmt(t.amount)}</div>
                   </div>

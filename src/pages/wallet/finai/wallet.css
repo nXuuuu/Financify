@@ -24,12 +24,12 @@ button{ font-family:inherit; }
 /* .col-left, .col-right{ display:flex; flex-direction:column; gap:18px; min-width:0; }
 .stat-row-4{ grid-template-columns: repeat(2,1fr); } */
 
-.card.balance-card{
+/* .card.balance-card{
   background: linear-gradient(160deg, var(--dark-card) 0%, var(--dark-card-2) 100%);
   color:#eefbf3; border:none; display:flex; flex-direction:column; justify-content:space-between;
 }
 .card.balance-card .label{ display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-tertiary); margin-bottom:10px; }
-.card.balance-card .amount{ font-size:26px; font-weight:700; letter-spacing:-0.5px; }
+.card.balance-card .amount{ font-size:26px; font-weight:700; letter-spacing:-0.5px; } */
 
 /* Wallets grid */
 .wallets-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
@@ -72,4 +72,18 @@ button{ font-family:inherit; }
 
 @media (max-width:1080px){
   .stat-row-4{ grid-template-columns: 1fr 1fr; }
+}
+
+/* Recent Activity: let the row flex instead of forcing a fixed 20vw
+   column on rt-info — that's what was truncating merchant/date text
+   on narrow screens. */
+.rt-row{ justify-content:space-between; }
+.rt-info{ width:auto; flex:1 1 auto; min-width:0; }
+.rt-name{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.rt-date{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.rt-amt{ flex-shrink:0; white-space:nowrap; }
+
+@media (max-width:480px){
+  .rt-name{ font-size:12.5px; }
+  .rt-date{ font-size:10.5px; }
 }

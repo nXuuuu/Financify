@@ -279,7 +279,7 @@ export default function SettingsPage() {
             <div className="s-title">Sessions</div>
             <div className="s-sub">Sign out of this device or everywhere</div>
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div className='session-actions'>
             <button className="btn-ghost-sm" onClick={handleLogout}>Log out</button>
             <button className="btn-danger" onClick={handleLogoutAll}>Log out all devices</button>
           </div>

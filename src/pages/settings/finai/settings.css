@@ -30,7 +30,8 @@ button{ font-family:inherit; }
 
 .btn-ghost-sm{
   background:var(--card-bg); border:1px solid var(--border); color:var(--text-secondary); font-weight:600;
-  font-size:12px; padding:8px 13px; border-radius:9px; cursor:pointer; margin-top:8px;
+  font-size:12px; padding:8px 13px; border-radius:9px; cursor:pointer;
+  height:32px; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box;
 }
 .btn-ghost-sm:hover{ background:var(--surface-hover); }
 
@@ -53,9 +54,16 @@ button{ font-family:inherit; }
 .toggle.on{ background: var(--green-dark); }
 .toggle.on::after{ left:21px; }
 
+/* Session rows (log out buttons) */
+.session-actions{ display:flex; gap:8px; }
+@media (max-width:480px){
+  .session-actions{ width:100%; }
+}
+
 .btn-danger{
   background:var(--card-bg); border:1px solid var(--red-pale); color:var(--red); font-weight:600;
   font-size:12px; padding:8px 13px; border-radius:9px; cursor:pointer; flex-shrink:0;
+  height:32px; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box;
 }
 .btn-danger:hover{ background:var(--red-pale); }
 .disabled-btn{

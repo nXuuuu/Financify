@@ -116,7 +116,7 @@ export default function WalletPage() {
       <div className="dashboard-grid">
         <div className="col-left">
           <StatRow variant="stat-row-4">
-            <StatCard balance label="Total Balance" value={formatCurrency(total)} />
+            <StatCard label="Total Balance" value={formatCurrency(total)} />
             <StatCard label="Total Wallets" value={accounts.length} />
             <StatCard label="Income (Month)" value={formatCurrency(monthIncome)} />
             <StatCard label="Expense (Month)" value={formatCurrency(monthExpense)} />
