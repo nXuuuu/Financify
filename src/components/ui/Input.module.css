@@ -5,24 +5,30 @@
 }
 .label {
   font-size: 0.75rem;
-  color: var(--color-muted);
+  font-weight: 600;
+  color: var(--muted);
 }
 .control {
-  border-radius: 6px;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface-2);
-  padding: 0.625rem 0.75rem;
-  font-size: 0.875rem;
-  color: var(--color-text);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+  color: var(--ink);
   outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
 }
 .control::placeholder {
-  color: rgba(139, 147, 161, 0.6);
+  color: var(--muted);
+}
+.control:hover {
+  border-color: var(--muted-2);
 }
 .control:focus {
-  border-color: var(--color-brass);
+  border-color: var(--green-dark);
+  box-shadow: 0 0 0 3px var(--green-pale);
 }
 .error {
   font-size: 0.75rem;
-  color: var(--color-negative);
+  color: var(--red);
 }

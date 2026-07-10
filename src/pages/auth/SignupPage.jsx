@@ -47,7 +47,7 @@ export default function SignupPage() {
       <form onSubmit={handleSubmit} className={styles.form}>
         <Input
           type="text"
-          label="Full name"
+          aria-label="Full name"
           placeholder="Alex Mercer"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -55,7 +55,7 @@ export default function SignupPage() {
         />
         <Input
           type="email"
-          label="Email address"
+          aria-label="Email address"
           placeholder="you@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -63,7 +63,7 @@ export default function SignupPage() {
         />
         <Input
           type="password"
-          label="Password"
+          aria-label="Password"
           placeholder="At least 6 characters"
           value={password}
           onChange={(e) => setPassword(e.target.value)}

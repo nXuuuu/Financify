@@ -3,13 +3,13 @@ import { useAuth } from '@/context/AuthContext'
 import styles from './ProtectedRoute.module.css'
 
 export default function ProtectedRoute({ children }) {
-  const { user, loading } = useAuth()
+  const { user, loading, confirmed } = useAuth()
 
   if (loading) {
     return <div className={styles.loading}>loading…</div>
   }
 
-  if (!user) return <Navigate to="/login" replace />
+  if (!user || !confirmed) return <Navigate to="/login" replace />
 
   return children
 }

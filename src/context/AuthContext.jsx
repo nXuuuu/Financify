@@ -3,9 +3,20 @@ import { supabase } from '@/lib/supabase'
 
 const AuthContext = createContext(null)
 
+// Supabase persists the session token itself (that part is safe and
+// necessary). This flag is separate: it tracks whether the person has
+// actually clicked through the login gate *during this browser tab's
+// visit*. sessionStorage clears when the tab/window is closed, so a
+// fresh visit always lands on /login — even with a still-valid session —
+// while reloads/navigation within the same visit don't ask again.
+const CONFIRM_KEY = 'financify-visit-confirmed'
+
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [confirmed, setConfirmed] = useState(
+    () => typeof window !== 'undefined' && sessionStorage.getItem(CONFIRM_KEY) === '1'
+  )
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -19,6 +30,11 @@ export function AuthProvider({ children }) {
 
     return () => listener.subscription.unsubscribe()
   }, [])
+
+  const confirmSession = () => {
+    sessionStorage.setItem(CONFIRM_KEY, '1')
+    setConfirmed(true)
+  }
 
   const signUp = async ({ name, email, password }) => {
     const { data, error } = await supabase.auth.signUp({
@@ -34,7 +50,11 @@ export function AuthProvider({ children }) {
     return { data, error }
   }
 
-  const signOut = () => supabase.auth.signOut()
+  const signOut = () => {
+    sessionStorage.removeItem(CONFIRM_KEY)
+    setConfirmed(false)
+    return supabase.auth.signOut()
+  }
 
   const updateProfile = async (metadata) => {
     const { data, error } = await supabase.auth.updateUser({ data: metadata })
@@ -50,6 +70,8 @@ export function AuthProvider({ children }) {
     session,
     user: session?.user ?? null,
     loading,
+    confirmed,
+    confirmSession,
     signUp,
     signIn,
     signOut,

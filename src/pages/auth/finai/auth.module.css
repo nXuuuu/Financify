@@ -1,21 +1,24 @@
 .title {
   margin-bottom: 0.25rem;
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--ink);
 }
 .titleMb2 {
   margin-bottom: 0.5rem;
   font-family: var(--font-display);
   font-size: 1.5rem;
+  color: var(--ink);
 }
 .subtitle {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
   font-size: 0.875rem;
-  color: var(--color-muted);
+  color: var(--muted);
 }
 .subtitleTight {
   font-size: 0.875rem;
-  color: var(--color-muted);
+  color: var(--muted);
 }
 .form {
   display: flex;
@@ -24,16 +27,17 @@
 }
 .fieldError {
   font-size: 0.75rem;
-  color: var(--color-negative);
+  color: var(--red);
 }
 .footer {
   margin-top: 1.5rem;
   text-align: center;
   font-size: 0.875rem;
-  color: var(--color-muted);
+  color: var(--muted);
 }
 .link {
   color: var(--green-dark);
+  font-weight: 600;
 }
 .link:hover {
   text-decoration: underline;
@@ -42,7 +46,8 @@
   margin-top: 1.5rem;
   display: inline-block;
   font-size: 0.875rem;
-  color: var(--color-brass);
+  color: var(--green-dark);
+  font-weight: 600;
 }
 .linkBlock:hover {
   text-decoration: underline;
@@ -51,5 +56,55 @@
   text-align: center;
 }
 .textStrong {
-  color: var(--color-text);
+  color: var(--ink);
+}
+
+/* Remember-me checkbox row */
+.rememberRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--muted);
+  cursor: pointer;
+  margin-top: -0.25rem;
+}
+.rememberRow input {
+  accent-color: var(--green-dark);
+  cursor: pointer;
+}
+
+/* Welcome-back panel (shown when an email is remembered) */
+.welcomeCard {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  text-align: center;
+}
+.welcomeText {
+  font-size: 0.9375rem;
+  color: var(--muted);
+  margin: 0 0 1.25rem 0;
+}
+.welcomeEmail {
+  color: var(--ink);
+  font-weight: 700;
+}
+.pillButton {
+  border-radius: 999px !important;
+}
+.forgetLink {
+  display: inline-block;
+  margin-top: 0.875rem;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.8125rem;
+  color: var(--green-dark);
+  font-weight: 600;
+  cursor: pointer;
+}
+.forgetLink:hover {
+  text-decoration: underline;
 }
