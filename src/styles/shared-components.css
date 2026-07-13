@@ -53,7 +53,7 @@
 }
 
 /* PageHeader (topbar / greeting / topbar-actions) */
-.topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; flex-wrap: wrap; row-gap: 12px; }
+.topbar {display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; flex-wrap: wrap; row-gap: 12px; }
 .greeting { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .greeting h1 { font-size: 16px; margin: 0; font-weight: 700; display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
 .greeting p { font-size: 12.5px; margin: 2px 0 0 0; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
@@ -187,16 +187,29 @@
 /* Recent-transactions-style row list (dashboard/wallet/transactions) */
 .rt-list { display: flex; flex-direction: column; gap: 14px; }
 .rt-row { display: flex; align-items: center; gap: 12px;}
-.rt-info {  min-width: 0;  width: 20vw;}
+.rt-info { display: flex; min-width: 0;}
 .rt-name { font-size: 13px; font-weight: 600; }
 .rt-date { flex:1; font-size: 11px; color: var(--muted);}
 .rt-amt { font-size: 13px; font-weight: 700; justify-self: end;}
 .rt-amt.neg { color: var(--red); }
 .rt-amt.pos { color: #16a34a; }
+
+.rt-row-wallet .rt-name{width: 30vw;}
+.rt-row-transaction .rt-info{ max-width: 20vw}
+.rt-row-transaction .rt-name{ text-wrap: balance;}
 @media (max-width: 525px) {
+  .rt-row{ gap: 8px}
+  .rt-row-transaction .rt-info{ max-width: 17.5vw}
   .rt-date{ display: flex; flex-direction: column; align-items: left; margin-left: 1rem;}
   .rt-dot{ display:  none;}
+  input[type="date"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    min-height: 2.5rem; /* Ensures it stays easily tappable */
+  }
 }
+
 /* Spending total label (dashboard/budgets/transactions/analytics) */
 .spending-total { font-size: 11.5px; color: var(--muted); }
 

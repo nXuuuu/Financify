@@ -220,7 +220,7 @@ export default function GoalsPage() {
           >
             {!past && (
               <>
-                <DropdownMenuItem onClick={() => openEdit(goal)}>Update goal</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => openEdit(goal)}>Edit goal</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handleArchive(goal)}>Archive goal</DropdownMenuItem>
               </>
             )}

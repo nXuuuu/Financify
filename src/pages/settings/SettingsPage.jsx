@@ -265,13 +265,13 @@ export default function SettingsPage() {
         </div>
 
         {/* 2FA */}
-        <div className="setting-row">
+        {/* <div className="setting-row">
           <div className="setting-info">
             <div className="s-title">Two-step verification</div>
             <div className="s-sub">Require a code from your authenticator app when signing in</div>
           </div>
           <button className={`toggle ${twoFA ? 'on' : ''} disabled-btn`} onClick={`toggleTwoFA`} aria-label="Toggle two-step verification" />
-        </div>
+        </div> */}
 
         {/* Sessions */}
         <div className="setting-row">
